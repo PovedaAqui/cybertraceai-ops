@@ -7,6 +7,7 @@ from langgraph.graph.message import add_messages
 from langgraph.graph import MessagesState, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain.tools import StructuredTool
+from langgraph.checkpoint.memory import MemorySaver
 
 llm = ChatBedrock(model="anthropic.claude-3-haiku-20240307-v1:0",
                   model_kwargs={"temperature": 0})
@@ -39,11 +40,16 @@ builder.add_node("tools", ToolNode(tools))
 builder.add_edge(START, "assistant")
 builder.add_conditional_edges("assistant", tools_condition)
 builder.add_edge("tools", "assistant")
-react_graph = builder.compile()
+memory = MemorySaver()
+react_graph = builder.compile(checkpointer=memory)
+
+config = {"configurable": {"thread_id": "123"}}
 
 try:
-    result = react_graph.invoke({"messages": [HumanMessage(content="What is 5 times 9? Use the multiply tool.")]})
-    print(result)
+    result1 = react_graph.invoke({"messages": [HumanMessage(content="Multiply 3 times 3.")]}, config)
+    result2 = react_graph.invoke({"messages": [HumanMessage(content="Multiply that by 4.")]}, config)
+    print(result1)
+    print(result2)
 except Exception as e:
     print(f"Error occurred: {str(e)}")
     raise
