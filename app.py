@@ -1,4 +1,4 @@
-from langchain_aws import ChatBedrock
+from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
@@ -9,7 +9,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langchain.tools import StructuredTool
 from langgraph.checkpoint.memory import MemorySaver
 
-llm = ChatBedrock(model="anthropic.claude-3-haiku-20240307-v1:0",
+llm = ChatOllama(model="llama3.1:8b",
                   model_kwargs={"temperature": 0})
 
 parser = StrOutputParser()
