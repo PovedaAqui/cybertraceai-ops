@@ -8,6 +8,7 @@ from langgraph.graph import MessagesState, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from langchain.tools import StructuredTool
 from langgraph.checkpoint.memory import MemorySaver
+from netmiko import ConnectHandler
 
 llm = ChatOllama(model="llama3.1:8b",
                   model_kwargs={"temperature": 0})
@@ -25,7 +26,23 @@ def multiply(a: int, b: int) -> int:
     """Multiplies a and b."""
     return a * b
 
-tools = [StructuredTool.from_function(multiply)]
+def show_interface_description(device_ip: str, username: str, password: str) -> str:
+    """Executes 'show vlan brief' command on a Cisco device."""
+    cisco_device = {
+        'device_type': 'cisco_ios',
+        'ip': device_ip,
+        'username': username,
+        'password': password,
+    }
+    
+    try:
+        with ConnectHandler(**cisco_device) as net_connect:
+            output = net_connect.send_command("show interface description")
+        return output
+    except Exception as e:
+        return f"Error connecting to device: {str(e)}"
+
+tools = [StructuredTool.from_function(show_interface_description)]
 llm_with_tools = llm.bind_tools(tools)
 
 def assistant(state: MessagesState):
@@ -46,10 +63,10 @@ react_graph = builder.compile(checkpointer=memory)
 config = {"configurable": {"thread_id": "123"}}
 
 try:
-    result1 = react_graph.invoke({"messages": [HumanMessage(content="Multiply 3 times 3.")]}, config)
-    result2 = react_graph.invoke({"messages": [HumanMessage(content="Multiply that by 4.")]}, config)
+    result1 = react_graph.invoke({"messages": [HumanMessage(content="Show interface description on 192.168.0.254 username cisco password cisco")]}, config)
+    #result2 = react_graph.invoke({"messages": [HumanMessage(content="Explain the output of the previous command.")]}, config)
     print(result1)
-    print(result2)
+    #print(result2)
 except Exception as e:
     print(f"Error occurred: {str(e)}")
     raise
