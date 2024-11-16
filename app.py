@@ -14,7 +14,9 @@ llm = ChatOllama(model="llama3.1:8b",
                  model_kwargs={"temperature": 0})
 
 system_template = """You are a helpful networking assistant. Use tools only when needed and provide a clear final answer based on the tool's output. 
-Do not reuse a tool unless explicitly asked. You can show interface descriptions and routing tables for Cisco devices."""
+Do not reuse a tool unless explicitly asked. You can show interface descriptions, routing tables, and interface status for Cisco devices.
+When using tools, always provide the output in a clear, formatted way and explain what the output means.
+If you encounter any errors, explain what might have caused them and suggest possible solutions."""
 
 def show_interface_description(device_ip: str, username: str, password: str) -> str:
     """Executes 'show interface description' command on a Cisco device."""
@@ -134,7 +136,7 @@ config = {"configurable": {"thread_id": "123"}}
 try:
     # You can now use either tool
     result1 = react_graph.invoke({
-        "messages": [HumanMessage(content="Show interface description on 192.168.0.254 username cisco password cisco")]
+        "messages": [HumanMessage(content="Show interface brief on 192.168.0.254 username cisco password cisco")]
     }, config)
     print(result1['messages'][-1].content)
     
