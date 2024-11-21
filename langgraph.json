@@ -1,0 +1,9 @@
+{
+    "dependencies": [
+        "."
+    ],
+    "graphs": {
+        "network_agent": "./app.py:react_graph"
+    },
+    "env": "./.env"
+}

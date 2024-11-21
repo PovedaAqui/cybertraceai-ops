@@ -6,7 +6,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
 from typing import Dict, Any
 from datetime import datetime
-from tools import tools  # Import tools from the new file
+from tools import tools
 
 llm = ChatOllama(model="llama3.1:8b",
                  model_kwargs={"temperature": 0})
@@ -79,7 +79,7 @@ config = {"configurable": {"thread_id": "123"}}
 try:
     # You can now use either tool
     result1 = react_graph.invoke({
-        "messages": [HumanMessage(content="Show interface brief on 192.168.0.254 username cisco password cisco")]
+        "messages": [HumanMessage(content="Show interface brief on 192.168.0.254")]
     }, config)
     print(result1['messages'][-1].content)
     
