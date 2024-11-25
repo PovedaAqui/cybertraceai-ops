@@ -46,7 +46,8 @@ try:
         "messages": [HumanMessage(content="Show routing table on 192.168.0.254")]
     }, config)
     
-    # Print the raw output from the last message
+    # Print the thread_id and the raw output from the last message
+    print(f"Thread ID: {thread_id}")
     print("Response:")
     print(result['messages'][-1].content)
 except Exception as e:
