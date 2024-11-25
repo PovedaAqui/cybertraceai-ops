@@ -2,110 +2,95 @@ from langchain_ollama import ChatOllama
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, ToolMessage
 from langgraph.graph import MessagesState, START, END, StateGraph
-from langgraph.prebuilt import ToolNode, tools_condition
+from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
-from typing import Dict, Any, TypedDict, List
+from typing import Dict, Any, List
 from datetime import datetime
+import uuid
 from tools import tools
 
 llm = ChatOllama(model="llama3.1:8b",
                  model_kwargs={"temperature": 0})
 
-system_template = """You are a helpful networking assistant. Use tools only when needed and provide a clear final answer based on the tool's output. 
-Do not reuse a tool unless explicitly asked. You can show interface descriptions, routing tables, and interface status for Cisco devices.
+system_template = """You are a helpful networking assistant specialized in Cisco networking. 
 
-When interpreting command outputs:
-1. Do NOT repeat the raw output in your interpretation
-2. Focus on providing meaningful insights about what the output shows
-3. Highlight important details and their significance
-4. Keep your interpretation concise and clear
+For networking related questions:
+1. Use tools when needed to check interface descriptions, routing tables, and interface status
+2. Provide clear interpretations of command outputs without repeating raw data
+3. Focus on meaningful insights and highlight important details
+4. Keep responses concise and clear
+
+For non-networking questions:
+1. Politely explain that you are a networking specialist and can help with networking-related queries
+2. Provide examples of questions you can help with (e.g., "You can ask me about network interfaces, routing tables, or device status")
+3. Do not return empty responses or parameter dictionaries
 
 If you encounter any errors, explain what might have caused them and suggest possible solutions."""
 
 llm_with_tools = llm.bind_tools(tools)
 
-class OutputFormat(TypedDict):
-    command_output: str
-    interpretation: str
-    timestamp: str
-
-class OutputState(TypedDict):
-    messages: List[AIMessage]
-    formatted_output: OutputFormat
-
 def assistant(state: MessagesState):
     # Add system message to the conversation context
     system_message = SystemMessage(content=system_template)
-    # Get existing messages from state and add system message at the beginning if it's not already there
     messages = state['messages']
-    # Ensure system message is included at the start of each conversation
     if not any(isinstance(msg, SystemMessage) for msg in messages):
         messages.insert(0, system_message)
-    # Invoke LLM with tools using updated messages (including system template)
     response = llm_with_tools.invoke(messages)
-    # Return updated state with new response message added
     return {"messages": [response]}
 
-def format_output(state: MessagesState) -> OutputState:
-    """Formats the final response according to the schema."""
+def should_continue(state: MessagesState) -> str:
+    """Determine if we should continue with tools or end the conversation."""
     messages = state['messages']
+    last_message = messages[-1]
     
-    # Get the current timestamp
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # If the LLM makes a tool call, then we route to the "tools" node
+    if isinstance(last_message, AIMessage) and last_message.tool_calls:
+        return "tools"
     
-    # Initialize variables
-    tool_output = "No tool output available"
-    interpretation = "No interpretation available"
+    # If the last message is a tool message, send back to assistant for interpretation
+    if isinstance(last_message, ToolMessage):
+        return "assistant"
     
-    # Find the tool message and the last AI interpretation
-    for msg in messages:
-        if isinstance(msg, ToolMessage):  # Get the raw tool output
-            tool_output = msg.content
-        elif isinstance(msg, AIMessage) and msg.content and not msg.content.startswith('Command Output:'):
-            # Get the last AI message that's not a formatted output
-            interpretation = msg.content
-    
-    formatted_output = OutputFormat(
-        command_output=tool_output,
-        interpretation=interpretation,
-        timestamp=current_time
-    )
-    
-    # Create formatted message
-    formatted_message = (
-        f"Command Output:\n{formatted_output['command_output']}\n\n"
-        f"Interpretation:\n{formatted_output['interpretation']}\n\n"
-        f"Timestamp: {formatted_output['timestamp']}"
-    )
-    
-    return {
-        "messages": [AIMessage(content=formatted_message)],
-        "formatted_output": formatted_output
-    }
+    # Otherwise, we stop (reply to the user)
+    return "end"
+
+def generate_thread_id() -> str:
+    """Generate a unique thread ID"""
+    return str(uuid.uuid4())
 
 # Build the graph
-builder = StateGraph(MessagesState, output=OutputState)
-builder.add_node("assistant", assistant)
-builder.add_node("tools", ToolNode(tools))
-builder.add_node("format_output", format_output)
+workflow = StateGraph(MessagesState)
 
-# Define the edges
-builder.add_edge(START, "assistant")
-builder.add_conditional_edges("assistant", tools_condition)
-builder.add_edge("tools", "assistant")
-builder.add_edge("assistant", "format_output")
-builder.add_edge("format_output", END)
+# Define the nodes we will cycle between
+workflow.add_node("assistant", assistant)
+workflow.add_node("tools", ToolNode(tools))
+
+# Set the entrypoint as assistant
+workflow.add_edge(START, "assistant")
+
+# Add conditional edges
+workflow.add_conditional_edges(
+    "assistant",
+    should_continue,
+    {
+        "tools": "tools",
+        "assistant": "assistant",
+        "end": END
+    }
+)
+
+# Add normal edge from tools back to assistant
+workflow.add_edge("tools", "assistant")
 
 # Initialize memory
 memory = MemorySaver()
-react_graph = builder.compile(checkpointer=memory)
-
-# Configuration
-config = {"configurable": {"thread_id": "123"}}
+react_graph = workflow.compile(checkpointer=memory)
 
 # Example usage
 try:
-    # You can now use either tool
+    # Generate a unique thread ID for each conversation
+    config = {"configurable": {"thread_id": generate_thread_id()}}
+    
     result1 = react_graph.invoke({
         "messages": [HumanMessage(content="Show routing table on 192.168.0.254")]
     }, config)
