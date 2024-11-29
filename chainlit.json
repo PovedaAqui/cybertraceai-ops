@@ -1,0 +1,11 @@
+{
+    "name": "Cisco Network Assistant",
+    "description": "A networking assistant specialized in Cisco devices",
+    "theme": "light",
+    "hide_cot": false,
+    "userInputTemplate": "Enter your networking query...",
+    "default_expand_messages": true,
+    "chat_bubble": true,
+    "markdown": true,
+    "message_size": "medium"
+}

@@ -87,17 +87,17 @@ memory = MemorySaver()
 react_graph = workflow.compile(checkpointer=memory)
 
 # Example usage
-try:
+#try:
     # Generate a unique thread ID for each conversation
-    config = {"configurable": {"thread_id": generate_thread_id()}}
+#    config = {"configurable": {"thread_id": generate_thread_id()}}
     
-    result1 = react_graph.invoke({
-        "messages": [HumanMessage(content="Show routing table on 192.168.0.254")]
-    }, config)
-    print(result1['messages'][-1].content)
+#    result1 = react_graph.invoke({
+#        "messages": [HumanMessage(content="Show routing table on 192.168.0.254")]
+#    }, config)
+#    print(result1['messages'][-1].content)
     
-except Exception as e:
-    print(f"Error occurred: {str(e)}")
-    raise
-finally:
-    wait_for_all_tracers()
+#except Exception as e:
+#    print(f"Error occurred: {str(e)}")
+#    raise
+#finally:
+#    wait_for_all_tracers()
