@@ -12,7 +12,7 @@ from tools import tools
 llm = ChatOllama(model="llama3.1:8b",
                  model_kwargs={"temperature": 0})
 
-system_template = system_template = """You are a helpful networking assistant specialized in Cisco networking. 
+system_template = """You are a helpful networking assistant specialized in Cisco networking. 
 
 Follow these steps strictly for every networking related question:
 
