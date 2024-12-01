@@ -1,6 +1,6 @@
 # CyberTrace
 
-CyberTrace is an open-source AI agent designed to simplify network management through natural language interactions. It currently specializes in Cisco networking devices, with plans to expand support to other vendors like SONIC.
+CyberTrace is an open-source AI agent designed to simplify network management through natural language interactions. It currently specializes in Cisco networking devices, with plans to expand support to other vendors like SONiC and Juniper.
 
 ## Overview
 
