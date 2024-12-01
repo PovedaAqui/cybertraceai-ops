@@ -1,11 +1,21 @@
 {
     "name": "Cisco Network Assistant",
     "description": "A networking assistant specialized in Cisco devices",
-    "theme": "light",
+    "theme": "dark",
     "hide_cot": false,
-    "userInputTemplate": "Enter your networking query...",
+    "userInputTemplate": "Enter your networking query (e.g., 'show interfaces on 192.168.1.1')",
     "default_expand_messages": true,
     "chat_bubble": true,
     "markdown": true,
-    "message_size": "medium"
+    "message_size": "medium",
+    "streaming": true,
+    "cache_messages": true,
+    "show_readme_as_menu": true,
+    "password_field_placeholder": "Enter your device password",
+    "user_env": false,
+    "header_message": "👋 Welcome to Cisco Network Assistant",
+    "chat_settings": {
+        "max_messages": 50,
+        "message_history": true
+    }
 }

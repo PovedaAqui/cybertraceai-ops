@@ -3,9 +3,17 @@ from langchain.tools import StructuredTool
 import chainlit as cl
 
 async def get_credentials():
-    """Prompts for username and password using Chainlit UI"""
+    """Gets or prompts for username and password using Chainlit UI"""
     try:
         print("[DEBUG] Starting get_credentials")
+        
+        # Check if credentials exist in session
+        cached_credentials = cl.user_session.get("credentials")
+        if cached_credentials:
+            print("[DEBUG] Using cached credentials")
+            return cached_credentials["username"], cached_credentials["password"]
+            
+        print("[DEBUG] No cached credentials found, requesting new ones")
         
         # Ask for username
         print("[DEBUG] Requesting username")
@@ -15,9 +23,7 @@ async def get_credentials():
             raise_on_timeout=True
         ).send()
         print(f"[DEBUG] Got username response: {username_res}")
-        print(f"[DEBUG] Username response type: {type(username_res)}")
-        print(f"[DEBUG] Username response keys: {username_res.keys()}")
-
+        
         if not username_res:
             raise Exception("Username is required")
             
@@ -35,13 +41,12 @@ async def get_credentials():
         # Ask for password
         print("[DEBUG] Requesting password")
         password_res = await cl.AskUserMessage(
-            content=" Please enter your password:",
+            content="Please enter your password:",
             timeout=120,
             raise_on_timeout=True,
             type="password"
         ).send()
         print(f"[DEBUG] Got password response: {password_res}")
-        print(f"[DEBUG] Password response type: {type(password_res)}")
 
         if not password_res:
             raise Exception("Password is required")
@@ -57,7 +62,15 @@ async def get_credentials():
         except Exception as e:
             print(f"[DEBUG] Error removing password message: {str(e)}")
 
-        return username_res['output'], password_res['output']
+        # Cache the credentials in session
+        credentials = {
+            "username": username_res['output'],
+            "password": password_res['output']
+        }
+        cl.user_session.set("credentials", credentials)
+        print("[DEBUG] Credentials cached in session")
+
+        return credentials["username"], credentials["password"]
 
     except Exception as e:
         print(f"[DEBUG] Error in get_credentials: {str(e)}")
