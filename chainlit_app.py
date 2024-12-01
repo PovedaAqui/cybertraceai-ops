@@ -2,6 +2,7 @@ import chainlit as cl
 from app import react_graph, generate_thread_id
 from langchain_core.messages import HumanMessage
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
+import asyncio
 
 # Store settings that might be reused
 WELCOME_MESSAGE = """👋 Hello! I'm your Cisco networking assistant. I can help you with:
@@ -36,15 +37,43 @@ async def main(message: cl.Message):
         config = {"configurable": {"thread_id": thread_id}}
         msg_state = {"messages": [HumanMessage(content=message.content)]}
         
-        # Process message and get response
-        print("[DEBUG] Calling react_graph.ainvoke")
-        result = await react_graph.ainvoke(msg_state, config)
-        response = result['messages'][-1].content
-        print(f"[DEBUG] Got response: {response}")
+        msg = cl.Message(content="")
+        already_streamed_content = set()  # Track what we've already sent
+        tool_output_sent = False  # Flag to track if tool output has been sent
+        current_buffer = ""  # Buffer for accumulating tokens
         
-        # Send the final response
-        print("[DEBUG] Sending final response")
-        await cl.Message(content=response).send()
+        async for chunk in react_graph.astream(msg_state, config):
+            print(f"\n[DEBUG] Chunk details:")
+            print(f"Chunk type: {type(chunk)}")
+            print(f"[DEBUG] Full chunk content: {chunk}")
+            
+            # Extract content based on the chunk structure
+            if isinstance(chunk, dict):
+                if 'tools' in chunk and not tool_output_sent:
+                    messages = chunk['tools'].get('messages', [])
+                    if messages and messages[0].content:
+                        content = f"```\n{messages[0].content}\n```"
+                        # Stream tool output line by line
+                        for line in content.split('\n'):
+                            await msg.stream_token(line + '\n')
+                        tool_output_sent = True
+                elif 'assistant' in chunk:
+                    messages = chunk['assistant'].get('messages', [])
+                    if messages and messages[0].content:
+                        assistant_content = messages[0].content
+                        if 'Interpretation:' in assistant_content:
+                            content = '\n' + assistant_content.split('Interpretation:')[1].strip()
+                            # Stream interpretation token by token
+                            for token in content.split():
+                                await msg.stream_token(token + ' ')
+                                await asyncio.sleep(0.01)  # Add small delay between tokens
+                        elif not '```' in assistant_content and assistant_content.strip():
+                            # Stream other content token by token
+                            for token in assistant_content.split():
+                                await msg.stream_token(token + ' ')
+                                await asyncio.sleep(0.01)  # Add small delay between tokens
+        
+        await msg.update()
             
     except Exception as e:
         print(f"[DEBUG] Error occurred: {str(e)}")

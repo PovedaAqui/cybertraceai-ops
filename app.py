@@ -9,11 +9,16 @@ from datetime import datetime
 import uuid
 from tools import tools
 
-llm = ChatOllama(model="llama3.1:8b",
-                 model_kwargs={"temperature": 0})
+llm = ChatOllama(
+    model="llama3.1:8b",
+    model_kwargs={"temperature": 0},
+    streaming=True,
+    callbacks=None,
+    max_tokens_per_chunk=1
+)
 
 system_template = """You are a helpful networking assistant specialized in Cisco networking. 
-
+check 
 IMPORTANT: For every request, first verify if an IP address is provided:
 1. If NO IP address is provided, respond with: "Please provide an IP address for the device you want to interact with. Example: show interfaces on 192.168.1.1"
 2. If an INVALID IP address is provided, respond with: "Please provide a valid IP address in the format: xxx.xxx.xxx.xxx"
