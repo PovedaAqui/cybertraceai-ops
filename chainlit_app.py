@@ -24,35 +24,35 @@ async def start():
 @cl.on_message
 async def main(message: cl.Message):
     """Process incoming messages and generate responses."""
-    processing_msg = None
     try:
+        print(f"[DEBUG] Received message: {message.content}")
+        print(f"[DEBUG] Message ID: {message.id}")
+        print(f"[DEBUG] Message author: {message.author}")
+        
         # Get thread ID and prepare config
         thread_id = cl.user_session.get("thread_id")
-        config = {"configurable": {"thread_id": thread_id}}
+        print(f"[DEBUG] Thread ID: {thread_id}")
         
-        # Prepare message state
+        config = {"configurable": {"thread_id": thread_id}}
         msg_state = {"messages": [HumanMessage(content=message.content)]}
         
-        # Show processing status
-        processing_msg = await cl.Message(content="🔄 Processing...").send()
-        
         # Process message and get response
-        result = react_graph.invoke(msg_state, config)
+        print("[DEBUG] Calling react_graph.ainvoke")
+        result = await react_graph.ainvoke(msg_state, config)
         response = result['messages'][-1].content
+        print(f"[DEBUG] Got response: {response}")
         
-        # Send response
+        # Send the final response
+        print("[DEBUG] Sending final response")
         await cl.Message(content=response).send()
-        
+            
     except Exception as e:
-        # Send error message
+        print(f"[DEBUG] Error occurred: {str(e)}")
+        print(f"[DEBUG] Error type: {type(e)}")
         await cl.Message(
             content=f"❌ An error occurred: {str(e)}", 
             author="Error"
         ).send()
-        
     finally:
-        # Cleanup
-        if processing_msg:
-            await processing_msg.remove()
-        # Handle tracers without awaiting
-        wait_for_all_tracers()  # Removed await since this is not an async function
+        print("[DEBUG] Executing finally block")
+        wait_for_all_tracers()
