@@ -10,6 +10,37 @@ CyberTrace uses local language models to interpret and execute network commands,
 - Langchain for LLM orchestration
 - Netmiko for device communication
 
+## Roadmap
+
+CyberTrace is being developed in phases, with each phase introducing new capabilities:
+
+1. **Verification Module** (Currently in Development)
+   - Support for common show commands
+   - Real-time command interpretation
+   - Basic network status monitoring
+   - Device configuration validation
+
+2. **Configuration Module** (Pending)
+   - Support for configuration commands
+   - Human-in-the-loop approval process
+   - Configuration validation and rollback
+   - Change management integration
+   - Configuration templates and best practices
+
+3. **Observability Module** (Pending)
+   - Advanced telemetry collection
+   - Performance metrics analysis
+   - Custom monitoring dashboards
+   - Anomaly detection
+   - Historical data analysis
+
+4. **Proactivity Module** (Pending)
+   - Automated issue detection
+   - Predictive maintenance
+   - Network optimization recommendations
+   - Automated remediation workflows
+   - Capacity planning insights
+
 ## Features
 
 - Natural language interface for network commands
