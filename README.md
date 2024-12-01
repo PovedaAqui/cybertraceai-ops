@@ -47,22 +47,38 @@ CyberTrace uses local language models to interpret and execute network commands,
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/cybertrace.git
-   cd cybertrace
+   git clone https://github.com/yourusername/cybertrace-ai.git
+   cd cybertrace-ai
    ```
 
-2. Install dependencies:
+2. Create and activate a virtual environment:
+   ```bash
+   # On Windows
+   python -m venv venv
+   
+   # Activate on Windows CMD
+   .\venv\Scripts\activate.bat
+   
+   # Activate on Windows PowerShell
+   .\venv\Scripts\Activate.ps1
+
+   # On macOS/Linux
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Configure your environment:
+4. Configure your environment:
    ```bash
    cp .env.example .env
    # Edit .env with your settings if needed
    ```
 
-4. Run CyberTrace:
+5. Run CyberTrace:
    ```bash
    chainlit run chainlit_app.py
    ```
