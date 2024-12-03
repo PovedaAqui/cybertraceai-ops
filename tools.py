@@ -237,6 +237,38 @@ async def show_processes_cpu(device_ip: str) -> str:
     except Exception as e:
         return f"Error connecting to device: {str(e)}"
 
+async def show_interface_description(device_ip: str) -> str:
+    """Shows interface descriptions."""
+    username, password = await get_credentials()
+    cisco_device = {
+        'device_type': 'cisco_ios',
+        'ip': device_ip,
+        'username': username,
+        'password': password,
+    }
+    try:
+        with ConnectHandler(**cisco_device) as net_connect:
+            output = net_connect.send_command("show interface description")
+        return output
+    except Exception as e:
+        return f"Error connecting to device: {str(e)}"
+
+async def show_ip_interface_brief(device_ip: str) -> str:
+    """Shows brief status of interfaces."""
+    username, password = await get_credentials()
+    cisco_device = {
+        'device_type': 'cisco_ios',
+        'ip': device_ip,
+        'username': username,
+        'password': password,
+    }
+    try:
+        with ConnectHandler(**cisco_device) as net_connect:
+            output = net_connect.send_command("show ip interface brief")
+        return output
+    except Exception as e:
+        return f"Error connecting to device: {str(e)}"
+
 # Update the tools list
 tools = [
     StructuredTool.from_function(
@@ -298,5 +330,17 @@ tools = [
         coroutine=show_processes_cpu,
         name="show_processes_cpu",
         description="Shows CPU utilization."
+    ),
+    StructuredTool.from_function(
+        show_interface_description,
+        coroutine=show_interface_description,
+        name="show_interface_description",
+        description="Shows interface descriptions."
+    ),
+    StructuredTool.from_function(
+        show_ip_interface_brief,
+        coroutine=show_ip_interface_brief,
+        name="show_ip_interface_brief",
+        description="Shows brief status of interfaces."
     )
 ] 

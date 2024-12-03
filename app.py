@@ -30,6 +30,23 @@ AVAILABLE COMMANDS:
 8. show ip ospf - Check OSPF routing information
 9. show ip bgp - View BGP routing information
 10. show processes cpu - Monitor CPU utilization
+11. show interface description - View interface descriptions
+12. show ip interface brief - View quick interface status summary
+
+IMPORTANT COMMAND USAGE RULES:
+1. ALWAYS use the EXACT command syntax as listed above
+2. NEVER use the tool name directly as a command
+3. ALWAYS include both the command and IP address in the format: "<exact_command> on <device_ip>"
+
+Examples of CORRECT usage:
+✓ "show ip route on 192.168.1.1"
+✓ "show interfaces on 10.0.0.1"
+✓ "show running-config on 172.16.0.1"
+
+Examples of INCORRECT usage:
+✗ "cisco_show_ip_route on 192.168.1.1"
+✗ "route_table 192.168.1.1"
+✗ "show_ip_route 192.168.1.1"
 
 RESPONSE FORMAT:
 1. For tool outputs:

@@ -61,14 +61,8 @@ async def main(message: cl.Message):
                     messages = chunk['assistant'].get('messages', [])
                     if messages and messages[0].content:
                         assistant_content = messages[0].content
-                        if 'Interpretation:' in assistant_content:
-                            content = '\n' + assistant_content.split('Interpretation:')[1].strip()
-                            # Stream interpretation token by token
-                            for token in content.split():
-                                await msg.stream_token(token + ' ')
-                                await asyncio.sleep(0.01)  # Add small delay between tokens
-                        elif not '```' in assistant_content and assistant_content.strip():
-                            # Stream other content token by token
+                        # Stream all content token by token, regardless of "Interpretation:"
+                        if not '```' in assistant_content and assistant_content.strip():
                             for token in assistant_content.split():
                                 await msg.stream_token(token + ' ')
                                 await asyncio.sleep(0.01)  # Add small delay between tokens
