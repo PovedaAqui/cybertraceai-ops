@@ -1,10 +1,10 @@
-# CyberTrace
+# CybertraceAI
 
-CyberTrace is an open-source AI agent designed to simplify network management through natural language interactions. It currently specializes in Cisco networking devices, with plans to expand support to other vendors like SONiC and Juniper.
+CybertraceAI is an open-source AI agent designed to simplify network management through natural language interactions. It currently specializes in Cisco networking devices, with plans to expand support to other vendors like SONiC and Juniper.
 
 ## Overview
 
-CyberTrace uses local language models to interpret and execute network commands, making network management more accessible and efficient. It combines:
+CybertraceAI uses local language models to interpret and execute network commands, making network management more accessible and efficient. It combines:
 - Ollama for local LLM processing
 - Chainlit for interactive chat interface
 - Langchain for LLM orchestration
@@ -12,7 +12,7 @@ CyberTrace uses local language models to interpret and execute network commands,
 
 ## Roadmap
 
-CyberTrace is being developed in phases, with each phase introducing new capabilities:
+CybertraceAI is being developed in phases, with each phase introducing new capabilities:
 
 1. **Verification Module** (Currently in Development)
    - Support for common show commands
@@ -109,14 +109,14 @@ CyberTrace is being developed in phases, with each phase introducing new capabil
    # Edit .env with your settings if needed
    ```
 
-5. Run CyberTrace:
+5. Run CybertraceAI:
    ```bash
    chainlit run chainlit_app.py
    ```
 
 ## Usage
 
-Once configured, you can start interacting with CyberTrace using natural language commands. The system will securely prompt for device credentials on first use and cache them for the session.
+Once configured, you can start interacting with CybertraceAI using natural language commands. The system will securely prompt for device credentials on first use and cache them for the session.
 
 ### Example Commands:
 ```bash
@@ -135,7 +135,7 @@ Once configured, you can start interacting with CyberTrace using natural languag
 
 ## Extending Commands
 
-CyberTrace can be extended with additional Cisco IOS commands by modifying two files:
+CybertraceAI can be extended with additional Cisco IOS commands by modifying two files:
 
 1. In `tools.py`:
    ```python
@@ -214,5 +214,5 @@ This project is licensed under the MIT License. See the [LICENSE](./LICENSE) fil
 
 - Create an issue on GitHub
 - Join our [Discord community](https://discord.gg/#)
-- Email: luis.poveda9321@gmail.com
+- Email: luis.poveda@cybertraceai.com
 

@@ -78,7 +78,7 @@ async def get_credentials():
         raise Exception(f"Failed to get credentials: {str(e)}")
 
 async def show_running_config(device_ip: str) -> str:
-    """Shows the current running configuration of the device."""
+    """Executes the 'show running-config' command on a Cisco device to display the current configuration."""
     username, password = await get_credentials()
     cisco_device = {
         'device_type': 'cisco_ios',
@@ -88,7 +88,7 @@ async def show_running_config(device_ip: str) -> str:
     }
     try:
         with ConnectHandler(**cisco_device) as net_connect:
-            output = net_connect.send_command("show running-config")
+            output = net_connect.send_command("show running-config", read_timeout=90)
         return output
     except Exception as e:
         return f"Error connecting to device: {str(e)}"
@@ -269,6 +269,38 @@ async def show_ip_interface_brief(device_ip: str) -> str:
     except Exception as e:
         return f"Error connecting to device: {str(e)}"
 
+async def show_ip_protocols(device_ip: str) -> str:
+    """Shows IP protocol information."""
+    username, password = await get_credentials()
+    cisco_device = {
+        'device_type': 'cisco_ios',
+        'ip': device_ip,
+        'username': username,
+        'password': password,
+    }
+    try:
+        with ConnectHandler(**cisco_device) as net_connect:
+            output = net_connect.send_command("show ip protocols")
+        return output
+    except Exception as e:
+        return f"Error connecting to device: {str(e)}"
+
+async def show_logging(device_ip: str) -> str:
+    """Shows the logging information from the device."""
+    username, password = await get_credentials()
+    cisco_device = {
+        'device_type': 'cisco_ios',
+        'ip': device_ip,
+        'username': username,
+        'password': password,
+    }
+    try:
+        with ConnectHandler(**cisco_device) as net_connect:
+            output = net_connect.send_command("show logging", read_timeout=90)
+        return output
+    except Exception as e:
+        return f"Error connecting to device: {str(e)}"
+
 # Update the tools list
 tools = [
     StructuredTool.from_function(
@@ -342,5 +374,17 @@ tools = [
         coroutine=show_ip_interface_brief,
         name="show_ip_interface_brief",
         description="Shows brief status of interfaces."
+    ),
+    StructuredTool.from_function(
+        show_ip_protocols,
+        coroutine=show_ip_protocols,
+        name="show_ip_protocols",
+        description="Shows IP protocol information."
+    ),
+    StructuredTool.from_function(
+        show_logging,
+        coroutine=show_logging,
+        name="show_logging",
+        description="Shows the logging information from the device."
     )
 ] 

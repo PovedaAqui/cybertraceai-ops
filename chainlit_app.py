@@ -5,11 +5,8 @@ from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 import asyncio
 
 # Store settings that might be reused
-WELCOME_MESSAGE = """👋 Hello! I'm your Cisco networking assistant. I can help you with:
-
-- Checking interface descriptions
-- Viewing routing tables
-- Checking interface status
+WELCOME_MESSAGE = """👋 Hi! I'm your networking assistant.
+I can help you check interface status, descriptions, routing tables, and more.
 
 Please provide the device IP and your query."""
 
