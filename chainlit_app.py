@@ -66,7 +66,7 @@ async def main(message: cl.Message):
                     # Stream character by character with faster speed
                     for char in content:
                         await msg.stream_token(char)
-                        await cl.sleep(0.002)  # Reduced from 0.01 to 0.002 for faster streaming
+                        await cl.sleep(0.001)  # Reduced to 0.001 for smoother streaming
                     # Finalize the message
                     await msg.send()
 
