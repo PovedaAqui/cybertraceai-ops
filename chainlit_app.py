@@ -2,7 +2,6 @@ import chainlit as cl
 from app import react_graph, generate_thread_id
 from langchain_core.messages import HumanMessage
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
-import asyncio
 
 # Store settings that might be reused
 WELCOME_MESSAGE = """👋 Hi! I'm your networking assistant.
@@ -47,10 +46,16 @@ async def main(message: cl.Message):
                 messages = chunk['tools'].get('messages', [])
                 if messages and messages[0].content:
                     tool_output = messages[0].content
-                    await msg.stream_token("```bash\n")
-                    for line in tool_output.split('\n'):
-                        await msg.stream_token(f"{line}\n")
-                    await msg.stream_token("```\n")
+                    
+                    # Create a step for tool output with hidden input
+                    async with cl.Step(
+                        name="Command Output",
+                        type="tool",
+                        show_input=False,
+                        language="bash"
+                    ) as step:
+                        for line in tool_output.split('\n'):
+                            await step.stream_token(f"{line}\n")
                 tool_output_sent = True
 
             # Handle assistant responses
