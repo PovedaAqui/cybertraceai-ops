@@ -33,21 +33,18 @@ async def main(message: cl.Message):
         config = {"configurable": {"thread_id": thread_id}}
         msg_state = {"messages": [HumanMessage(content=message.content)]}
         
-        msg = cl.Message(content="")
-        tool_output_sent = False  # Flag to track if tool output has been sent
+        tool_output_sent = False
 
         async for chunk in react_graph.astream(msg_state, config):
             print(f"\n[DEBUG] Chunk details:")
             print(f"Chunk type: {type(chunk)}")
             print(f"[DEBUG] Full chunk content: {chunk}")
 
-            # Handle tool outputs
+            # Handle tool outputs first
             if isinstance(chunk, dict) and 'tools' in chunk and not tool_output_sent:
                 messages = chunk['tools'].get('messages', [])
                 if messages and messages[0].content:
                     tool_output = messages[0].content
-                    
-                    # Create a step for tool output with hidden input
                     async with cl.Step(
                         name="Command Output",
                         type="tool",
@@ -58,16 +55,20 @@ async def main(message: cl.Message):
                             await step.stream_token(f"{line}\n")
                 tool_output_sent = True
 
-            # Handle assistant responses
+            # Handle assistant responses after tool output
             elif isinstance(chunk, dict) and 'assistant' in chunk:
                 messages = chunk['assistant'].get('messages', [])
                 if messages and messages[0].content:
-                    assistant_content = messages[0].content
-                    await msg.stream_token("\n")
-                    for line in assistant_content.split('. '):
-                        await msg.stream_token(f"{line.strip()}\n\n")
-
-        await msg.update()
+                    content = messages[0].content
+                    # Create message after tool output
+                    msg = cl.Message(content="")
+                    await msg.send()
+                    # Stream character by character with faster speed
+                    for char in content:
+                        await msg.stream_token(char)
+                        await cl.sleep(0.002)  # Reduced from 0.01 to 0.002 for faster streaming
+                    # Finalize the message
+                    await msg.send()
 
     except Exception as e:
         print(f"[DEBUG] Error occurred: {str(e)}")
