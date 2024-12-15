@@ -24,15 +24,15 @@ Available commands (require IP address):
 - show_running_config: Display full device configuration
 - show_version: Show hardware, software versions, and system uptime
 - show_ip_route: Display IP routing table and routes
-- show_interfaces: Show interface statistics and status
+- show_interfaces: Show detailed interface statistics including packets, errors, bandwidth usage, and real-time status for all interfaces
 - show_cdp_neighbors: List directly connected Cisco devices
 - show_vlan: Display VLAN information and port assignments
 - show_spanning_tree: Show STP topology and port states
 - show_ip_ospf: Display OSPF routing process information
 - show_ip_bgp: Show BGP routing table
 - show_processes_cpu: Display CPU utilization
-- show_interface_description: List all interfaces and their descriptions
-- show_ip_interface_brief: Show quick interface status summary
+- show_interface_description: Show only the user-configured descriptions/labels for all interfaces
+- show_ip_interface_brief: Show condensed interface status with IP addressing (up/down state, IP address, protocol status)
 - show_ip_protocols: Display active routing protocols
 - show_logging: Show system logs and messages
 
