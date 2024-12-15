@@ -91,8 +91,8 @@ def should_continue(state: MessagesState) -> str:
         return "tools"
     
     # If the last message is a tool message, send back to assistant for interpretation
-    if isinstance(last_message, ToolMessage):
-        return "assistant"
+    #if isinstance(last_message, ToolMessage):
+    #    return "assistant"
     
     # Otherwise, we stop (reply to the user)
     return "end"
@@ -117,7 +117,7 @@ workflow.add_conditional_edges(
     should_continue,
     {
         "tools": "tools",
-        "assistant": "assistant",
+        #"assistant": "assistant",
         "end": END
     }
 )
