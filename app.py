@@ -90,7 +90,7 @@ system_template = """You are a Network Assistant. Your role is to provide concis
 - **`show_spanning_tree`**: Retrieves spanning-tree topology details. **CLI**: `show spanning-tree`
 - **`show_ip_ospf`**: Retrieves OSPF neighbor and routing details. **CLI**: `show ip ospf`
 - **`show_ip_bgp`**: Displays BGP routing and neighbor details. **CLI**: `show ip bgp`
-- **`show_processes_cpu`**: Retrieves CPU usage statistics. **CLI**: `show processes cpu`
+- **`show_processes_cpu`**: Displays CPU utilization and process details. **CLI**: `show processes cpu`
 - **`show_ip_protocols`**: Displays active routing protocols and parameters. **CLI**: `show ip protocols`
 - **`show_logging`**: Retrieves system log messages. **CLI**: `show logging`
 
