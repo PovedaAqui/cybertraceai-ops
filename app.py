@@ -21,7 +21,7 @@ llm = ChatOllama(
     max_tokens_per_chunk=50
 )
 
-system_template = """You are a Network Assistant. Your role is to provide concise and direct answers for device-specific operations using the provided tools. Follow these instructions according to the updated Llama 3.2 recommended prompt and formatting guidelines. Strict adherence to these rules is mandatory.
+system_template = """You are a Network Assistant. Your role is to provide concise and direct answers for device-specific operations using the provided tools. Strict adherence to these instructions and rules is mandatory.
 
 ---
 
