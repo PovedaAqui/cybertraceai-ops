@@ -5,10 +5,11 @@ CybertraceAI is an open-source AI agent designed to simplify network management 
 ## Overview
 
 CybertraceAI uses local language models to interpret and execute network commands, making network management more accessible and efficient. It combines:
-- Ollama for local LLM processing
+- Ollama for local LLM processing (llama 3.2 3B) and embeddings (Nomic)
 - Chainlit for interactive chat interface
 - Langchain for LLM orchestration
 - Netmiko for device communication
+- Dynamic tool selection using embeddings
 
 ## Roadmap
 
@@ -44,7 +45,8 @@ CybertraceAI is being developed in phases, with each phase introducing new capab
 ## Features
 
 - Natural language interface for network commands
-- Local execution using Ollama language models (llama3.1:8b)
+- Local execution using Ollama language models (llama 3.2 3B)
+- Dynamic tool selection using Nomic embeddings
 - Zero-cloud dependency - runs entirely on your infrastructure
 - Secure credential management with session-based storage
 - Interactive streaming responses with interpretation
@@ -59,19 +61,29 @@ CybertraceAI is being developed in phases, with each phase introducing new capab
   - `show ip ospf` - Check OSPF routing information
   - `show ip bgp` - View BGP routing information
   - `show processes cpu` - Monitor CPU utilization
+  - `show interface description` - View interface descriptions
+  - `show ip interface brief` - Check interface IP and status
+  - `show ip protocols` - View IP protocol information
+  - `show logging` - View system logs and events
+
+## Known Issues
+
+- The `show running-config` and `show logging` commands may experience timeout issues with larger configurations.
 
 ## Prerequisites
 
-- Python 3.8 or higher
-- Ollama installed locally with llama3.1:8b model
+- Python 3.11 or higher
+- Ollama installed locally with:
+  - llama 3.2 3B model for command processing
+  - Nomic embedding model for tool selection
 - Access to Cisco networking devices
 - Required Python packages:
   - chainlit
   - langchain
   - netmiko
   - langgraph
-- Minimum 8GB RAM recommended
-- 20GB free disk space
+- Minimum 16GB RAM required
+- 64GB free disk space
 - NVIDIA Series 40 graphics card is desirable for optimal performance
 
 ## Quick Start
@@ -135,54 +147,35 @@ Once configured, you can start interacting with CybertraceAI using natural langu
 
 ## Extending Commands
 
-CybertraceAI can be extended with additional Cisco IOS commands by modifying two files:
+CybertraceAI can be extended with additional Cisco IOS commands by modifying the following files:
 
 1. In `tools.py`:
    ```python
-   # Add new command function
-   async def show_new_command(device_ip: str) -> str:
-       """Description of the new command."""
-       username, password = await get_credentials()
-       cisco_device = {
-           'device_type': 'cisco_ios',
-           'ip': device_ip,
-           'username': username,
-           'password': password,
-       }
-       try:
-           with ConnectHandler(**cisco_device) as net_connect:
-               output = net_connect.send_command("your cisco command")
-           return output
-       except Exception as e:
-           return f"Error connecting to device: {str(e)}"
-
-   # Add to tools list
-   tools = [
-       # ... existing tools ...
-       StructuredTool.from_function(
-           show_new_command,
-           coroutine=show_new_command,
-           name="show_new_command",
-           description="Description of the new command."
-       ),
-   ]
+   # Add to cisco_commands dictionary
+   cisco_commands = {
+       # ... existing commands ...
+       "your new command": "Description of the command",
+   }
    ```
 
-2. In `app.py`, update the system template to include the new command:
+2. The system will automatically:
+   - Create the necessary tool functions
+   - Register the tools with unique IDs
+   - Index the commands in the vector store for dynamic selection
+
+3. Update the command description in `app.py` system template under the appropriate category:
    ```python
-   system_template = """
-   AVAILABLE COMMANDS:
-   # ... existing commands ...
-   11. show_new_command - Description of the new command
-   """
+   AVAILABLE TOOLS:
+   // ... existing categories ...
+   CATEGORY:
+   - your_new_command: Description of what it does
    ```
 
-Remember to follow these guidelines when adding commands:
+Remember to:
 - Ensure the command is supported by Cisco IOS
 - Add proper error handling
-- Update the system message to include the new command
-- Follow the existing pattern for command implementation
-- Test the new command thoroughly before deployment
+- Test thoroughly before deployment
+- Consider command timeout requirements
 
 ## Security Considerations
 
@@ -208,7 +201,7 @@ We welcome contributions!
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more details.
+This project is licensed under the Apache 2.0 License. See the [LICENSE](./LICENSE) file for more details.
 
 ## Support
 
