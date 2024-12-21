@@ -1,13 +1,21 @@
 from langchain_ollama import ChatOllama
-from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, ToolMessage
+from langgraph.graph.message import add_messages
 from langgraph.graph import MessagesState, START, END, StateGraph
 from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
-from typing import Dict, Any, List
-from datetime import datetime
+from typing import Dict, Annotated, TypedDict
 import uuid
-from tools import tools
+from tools import tools, tool_registry
+from embeddings import setup_vector_store, search_similar_tools
+
+# Initialize vector store
+vector_store = setup_vector_store(tool_registry)
+
+# Define the state structure
+class State(TypedDict):
+    messages: Annotated[list, add_messages]
+    selected_tools: list[str]
 
 llm = ChatOllama(
     model="llama3.2:latest",
@@ -21,121 +29,96 @@ llm = ChatOllama(
     max_tokens_per_chunk=50
 )
 
-system_template = """You are a Network Assistant. Your role is to provide concise and direct answers for device-specific operations using the provided tools. Strict adherence to these instructions and rules is mandatory.
+system_template = """You are a Network Assistant that executes Cisco IOS commands. Follow these rules precisely:
 
----
+CORE RULES:
+1. Use ONLY tools selected for the current query
+2. Require valid IP address for ALL device operations
+3. Never invent or assume information
+4. Keep responses brief and direct
 
-### OVERALL INSTRUCTIONS:
-- Always produce concise, precise, and direct responses.
-- Only use tools under the specific conditions outlined below.
-- Do not wrap results or explanations in quotes.
-- Use backticks only for actual device commands or syntax.
+TOOL USAGE:
+- REQUIRE: Valid IP address + Selected tool
+- IF NO IP: Reply "Please provide the device IP address."
+- IF ERROR: Reply "Connection failed. Check IP and network access."
 
----
+COMMAND FORMAT:
+- Tool names: show_ip_route
+- CLI commands: `show ip route`
+- Never mix these formats
 
-### RESPONSE TYPES AND CONDITIONS:
+AVAILABLE TOOLS:
+Each tool requires a device IP address:
 
-1. DEVICE OPERATIONS (TOOL USAGE):
-   - Use a tool **only if**:
-     1. The request explicitly asks for device-specific data retrieval.
-     2. A valid IP address is provided in the user request.
-   - If the request is device-specific but a valid IP address is missing:
-     Respond with:
-     Please provide the device IP address for this operation.
+CONFIGURATION & SYSTEM:
+- show_running_config: Shows active configuration on the device
+- show_version: Displays hardware, software versions and system uptime
+- show_processes_cpu: Reports CPU utilization and top processes
+- show_logging: Displays system logs and recent events
 
-2. NON-DEVICE-SPECIFIC REQUESTS:
-   - If no valid IP is provided and the request does not explicitly require device data:
-     Respond with:
-     I don't have enough information.
+INTERFACES & CONNECTIVITY:
+- show_interfaces: Detailed status of all interfaces including errors
+- show_ip_interface_brief: Quick view of interface IP and status
+- show_interface_description: Lists all interfaces and their descriptions
+- show_cdp_neighbors: Shows directly connected Cisco devices
 
-3. TOOL CALL FAILURES:
-   - If the tool invocation fails (e.g., incorrect IP, connectivity issues):
-     Respond with:
-     Error: Unable to connect to the device. Possible causes include:
-     1. Incorrect IP address.
-     2. Connectivity issues (e.g., firewall or port settings).
+ROUTING & PROTOCOLS:
+- show_ip_route: Displays IP routing table and known networks
+- show_ip_protocols: Lists running routing protocols and their settings
+- show_ip_ospf: Shows OSPF routing process information
+- show_ip_bgp: Displays BGP routing table entries
 
----
+SWITCHING & VLANS:
+- show_vlan: Lists all VLANs and their ports
+- show_spanning_tree: Shows STP status and configuration
 
-### STRICT FORMATTING RULES:
+EXAMPLES:
+✓ User: "Show routes on 10.1.1.1"
+  Reply: [Use show_ip_route with IP 10.1.1.1]
 
-1. BACKTICKS USAGE:
-   - Use backticks ` ` **only for actual device commands or syntax**.
-   - Do not use backticks for tool names.
+✓ User: "Check interfaces"
+  Reply: "Please provide the device IP address."
 
-2. TOOL NAMES VS CLI COMMANDS:
-   - Tools are for data retrieval; they are not device CLI commands.
-   - Never represent a tool name (e.g., `show_running_config`) as a device command.
-   - Instead, reference the **device CLI command** in backticks.
+✓ User: "What is OSPF?"
+  Reply: "Please provide a device IP address for OSPF information."
 
-3. TOOL USAGE CONDITIONS:
-   - Tools must only be invoked when:
-     - The user explicitly requests device-specific data retrieval.
-     - A valid IP address is provided.
-
-4. EXCLUDE UNNECESSARY QUOTES:
-   - Do not wrap explanations or results in quotes.
-
----
-
-### AVAILABLE TOOLS (REQUIRE A VALID IP ADDRESS):
-- **`show_running_config`**: Retrieves the device's running configuration. **CLI**: `show running-config`
-- **`show_version`**: Retrieves hardware, OS version, and uptime details. **CLI**: `show version`
-- **`show_ip_route`**: Retrieves the IP routing table. **CLI**: `show ip route`
-- **`show_interfaces`**: Displays detailed interface statistics (packets, errors, bandwidth, status). **CLI**: `show interfaces`
-- **`show_interface_description`**: Displays interface descriptions and their status. **CLI**: `show interface description`
-- **`show_ip_interface_brief`**: Provides a summary of interfaces, IP addresses, and states. **CLI**: `show ip interface brief`
-- **`show_cdp_neighbors`**: Retrieves directly connected Cisco device information. **CLI**: `show cdp neighbors`
-- **`show_vlan`**: Displays VLAN configurations (IDs, names, interfaces). **CLI**: `show vlan`
-- **`show_spanning_tree`**: Retrieves spanning-tree topology details. **CLI**: `show spanning-tree`
-- **`show_ip_ospf`**: Retrieves OSPF neighbor and routing details. **CLI**: `show ip ospf`
-- **`show_ip_bgp`**: Displays BGP routing and neighbor details. **CLI**: `show ip bgp`
-- **`show_processes_cpu`**: Displays CPU utilization and process details. **CLI**: `show processes cpu`
-- **`show_ip_protocols`**: Displays active routing protocols and parameters. **CLI**: `show ip protocols`
-- **`show_logging`**: Retrieves system log messages. **CLI**: `show logging`
-
----
-
-### EXAMPLES:
-
-#### Device-Specific Request (Tool Invocation):
-Q: Show running configuration for 10.1.1.1  
-A: [Call `show_running_config` tool for IP `10.1.1.1`]
-
-Q: Run `show version` on 192.168.1.1  
-A: [Call `show_version` tool for IP `192.168.1.1`]
-
-#### Missing IP Address:
-Q: Show running configuration  
-A: Please provide the device IP address for this operation.
-
-#### Non-Device-Specific Request:
-Q: What is a VLAN?  
-A: I don't have enough information.
-
----
-
-### CHECKLIST BEFORE RESPONDING:
-1. **Device-specific data with a valid IP?**
-   - Call the appropriate tool.
-2. **Device-specific request without a valid IP?**
-   - Ask for the IP address.
-3. **Non-device-specific request?**
-   - Respond with "I don't have enough information."
-
----
-
-Adhere to these updated guidelines strictly for consistency and accuracy."""
+Remember: Only use tools specifically selected for the current query."""
 
 llm_with_tools = llm.bind_tools(tools)
 
-def assistant(state: MessagesState):
+def select_tools(state: State) -> Dict:
+    """Select relevant tools based on the user's message content."""
+    # Get the last message from the user
+    messages = state["messages"]
+    if not messages:
+        return {"selected_tools": []}
+    
+    last_message = messages[-1]
+    if not isinstance(last_message, HumanMessage):
+        return {"selected_tools": []}
+
+    # Search for relevant tools using vector similarity
+    similar_tools = search_similar_tools(vector_store, last_message.content, k=3)
+    selected_tool_ids = [doc[0].id for doc in similar_tools]
+    
+    return {"selected_tools": selected_tool_ids}
+
+def assistant(state: State):
+    """Process messages with selected tools."""
     # Add system message to the conversation context
     system_message = SystemMessage(content=system_template)
     messages = state['messages']
     if not any(isinstance(msg, SystemMessage) for msg in messages):
         messages.insert(0, system_message)
-    response = llm_with_tools.invoke(messages)
+    
+    # Get selected tools
+    selected_tools = [tool_registry[id] for id in state.get("selected_tools", [])]
+    if not selected_tools:
+        selected_tools = tools  # Fallback to all tools if none selected
+    
+    # Bind selected tools to LLM
+    llm_with_selected_tools = llm.bind_tools(selected_tools)
+    response = llm_with_selected_tools.invoke(messages)
     return {"messages": [response]}
 
 def should_continue(state: MessagesState) -> str:
@@ -159,14 +142,16 @@ def generate_thread_id() -> str:
     return str(uuid.uuid4())
 
 # Build the graph
-workflow = StateGraph(MessagesState)
+workflow = StateGraph(State)
 
-# Define the nodes we will cycle between
+# Define the nodes
+workflow.add_node("select_tools", select_tools)
 workflow.add_node("assistant", assistant)
 workflow.add_node("tools", ToolNode(tools))
 
-# Set the entrypoint as assistant
-workflow.add_edge(START, "assistant")
+# Set the entrypoint as select_tools
+workflow.add_edge(START, "select_tools")
+workflow.add_edge("select_tools", "assistant")
 
 # Add conditional edges
 workflow.add_conditional_edges(
@@ -179,7 +164,7 @@ workflow.add_conditional_edges(
 )
 
 # Add normal edge from tools back to assistant
-workflow.add_edge("tools", "assistant")
+workflow.add_edge("tools", "select_tools")
 
 # Initialize memory
 memory = MemorySaver()
