@@ -1,66 +1,81 @@
-from netmiko import ConnectHandler
+import aiohttp
+import json
 from langchain.tools import StructuredTool
-import chainlit as cl
-import re
 import uuid
-from typing import Dict
+from typing import Dict, Optional
 
-async def get_cached_credentials():
-    """Gets cached credentials from the session"""
-    credentials = cl.user_session.get("credentials")
-    if not credentials:
-        raise Exception("No credentials found in session")
-    return credentials["username"], credentials["password"]
+# API configuration
+BASE_URL = "http://localhost:8000/api/v2"
+ACCESS_TOKEN = "496157e6e869ef7f3d6ecb24a6f6d847b224ee4f"
 
-def create_cisco_tool(command: str, description: str) -> StructuredTool:
-    """Creates a tool for executing a Cisco command."""
+def create_api_call(resource: str, description: str) -> StructuredTool:
+    """Creates a tool for executing Suzieq API calls."""
     # Create a safe name for the function
-    safe_name = re.sub(r"[^\w\s]", "", command).replace(" ", "_").lower()
+    safe_name = f"show_{resource.lower()}"
     
-    async def cisco_command(device_ip: str) -> str:
-        username, password = await get_cached_credentials()
-        cisco_device = {
-            'device_type': 'cisco_ios',
-            'ip': device_ip,
-            'username': username,
-            'password': password,
+    async def api_command(
+        view: str = "latest",
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None
+    ) -> str:
+        """Execute Suzieq API call"""
+        headers = {
+            'accept': 'application/json',
+            'access_token': ACCESS_TOKEN
         }
+        
+        # Build query parameters
+        params = {'view': view}
+        if start_time:
+            params['start_time'] = start_time
+        if end_time:
+            params['end_time'] = end_time
+            
+        url = f"{BASE_URL}/{resource}/show"
+        
         try:
-            with ConnectHandler(**cisco_device) as net_connect:
-                output = net_connect.send_command(command, read_timeout=90)
-            return output
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, headers=headers, params=params) as response:
+                    if response.status != 200:
+                        return f"Error: API returned status code {response.status}"
+                    
+                    data = await response.json()
+                    return json.dumps(data, indent=2)
+                    
         except Exception as e:
-            return f"Error connecting to device: {str(e)}"
+            return f"Error calling API: {str(e)}"
 
     return StructuredTool.from_function(
-        cisco_command,
-        coroutine=cisco_command,
+        api_command,
+        coroutine=api_command,
         name=safe_name,
         description=description
     )
 
-# Define available Cisco commands and their descriptions
-cisco_commands = {
-    "show running-config": "Shows the current running configuration of the device.",
-    "show version": "Shows system hardware and software status.",
-    "show ip route": "Shows the IP routing table.",
-    "show interfaces": "Shows detailed interface information.",
-    "show cdp neighbors": "Shows CDP neighbor information.",
-    "show vlan": "Shows VLAN information.",
-    "show spanning-tree": "Shows spanning tree information.",
-    "show ip ospf": "Shows OSPF information.",
-    "show ip bgp": "Shows BGP information.",
-    "show processes cpu": "Shows CPU utilization.",
-    "show interface description": "Shows interface descriptions.",
-    "show ip interface brief": "Shows brief status of interfaces.",
-    "show ip protocols": "Shows IP protocol information.",
-    "show logging": "Shows the logging information from the device."
+# Define available Suzieq resources and their descriptions
+suzieq_resources = {
+    "device": "Shows information about network devices",
+    "interface": "Shows detailed interface information",
+    "route": "Shows routing table information",
+    "bgp": "Shows BGP protocol information",
+    "ospf": "Shows OSPF protocol information",
+    "lldp": "Shows LLDP neighbor information",
+    "vlan": "Shows VLAN information",
+    "mac": "Shows MAC address table information",
+    "arpnd": "Shows ARP/ND table information",
+    "mlag": "Shows MLAG information",
+    "evpnVni": "Shows EVPN VNI information",
+    "fs": "Shows filesystem information",
+    "sqpoller": "Shows poller information",
+    "table": "Shows table information",
+    "topology": "Shows network topology information (alpha)",
+    "path": "Shows path information between endpoints"
 }
 
 # Create a tool registry with UUID keys
 tool_registry: Dict[str, StructuredTool] = {
-    str(uuid.uuid4()): create_cisco_tool(command, description)
-    for command, description in cisco_commands.items()
+    str(uuid.uuid4()): create_api_call(resource, description)
+    for resource, description in suzieq_resources.items()
 }
 
 # Create tools list from the registry

@@ -1,9 +1,9 @@
 {
-    "name": "Cisco Network Assistant",
-    "description": "A networking assistant specialized in Cisco devices",
+    "name": "Network Observability Assistant",
+    "description": "A multivendor networking assistant powered by telemetry data",
     "theme": "dark",
     "hide_cot": false,
-    "userInputTemplate": "Enter your networking query (e.g., 'show interfaces on 192.168.1.1')",
+    "userInputTemplate": "Enter your networking query (e.g., 'show interface status' or 'check BGP neighbors')",
     "default_expand_messages": true,
     "chat_bubble": true,
     "markdown": true,
@@ -11,9 +11,8 @@
     "streaming": true,
     "cache_messages": true,
     "show_readme_as_menu": true,
-    "password_field_placeholder": "Enter your device password",
     "user_env": false,
-    "header_message": "👋 Welcome to Cisco Network Assistant",
+    "header_message": "👋 Welcome to Network Observability Assistant",
     "chat_settings": {
         "max_messages": 50,
         "message_history": true
