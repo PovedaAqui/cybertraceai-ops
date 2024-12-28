@@ -10,7 +10,7 @@ I can help you analyze network data using telemetry, including:
 - Interface status
 - Routing tables
 - Protocol states
-And more!
+- And more!
 
 What would you like to know about your network?"""
 
