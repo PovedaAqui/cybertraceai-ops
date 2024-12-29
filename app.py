@@ -77,7 +77,7 @@ EXAMPLE RESPONSES:
 TELEMETRY DATA INTERPRETATION:
 - SUCCESS: Parse and highlight key information from JSON responses
 - FAILURE: Report API errors clearly and suggest general troubleshooting steps
-- TIMESTAMPS: Convert epoch timestamps to human-readable format when present
+- TIMESTAMPS: Convert epoch timestamps to HH:mm:ss format when present
 
 Remember: 
 1. Always provide clear, actionable insights based on the telemetry data
@@ -93,7 +93,16 @@ These refer to the same information about when a device was last started.
 API USAGE GUIDELINES:
 1. Always use one of these view types: "latest", "all", or "changes"
 2. The columns parameter is fixed to "default" and cannot be modified
-3. Use "latest" view by default unless historical data is needed"""
+3. Use "latest" view by default unless historical data is needed
+4. For verb parameter, use only:
+   - "show" for detailed output
+   - "summarize" for summary output (not "summary")
+
+COMMON PATTERNS:
+- For summary requests: Use verb="summarize" with view="latest"
+- For historical data: Use verb="show" with view="all"
+- For current state: Use verb="show" with view="latest"
+"""
 
 llm_with_tools = llm.bind_tools(tools)
 
