@@ -3,10 +3,18 @@ import json
 from langchain.tools import StructuredTool
 import uuid
 from typing import Dict, Optional, Literal
+from dotenv import load_dotenv
+import os
+
+# Load environment variables
+load_dotenv()
 
 # API configuration
 BASE_URL = "http://localhost:8000/api/v2"
-ACCESS_TOKEN = "496157e6e869ef7f3d6ecb24a6f6d847b224ee4f"
+ACCESS_TOKEN = os.getenv('SUZIEQ_ACCESS_TOKEN')
+
+if not ACCESS_TOKEN:
+    raise ValueError("SUZIEQ_ACCESS_TOKEN environment variable is not set")
 
 # Define valid view values
 ViewType = Literal["latest", "all", "changes"]
@@ -29,10 +37,10 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
             'access_token': ACCESS_TOKEN
         }
         
-        # Build query parameters
+        # Build query parameters with fixed columns="default"
         params = {
             'view': view,
-            'columns': 'default',
+            'columns': 'default',  # Hardcoded to always use default
             'access_token': ACCESS_TOKEN
         }
         

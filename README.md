@@ -1,199 +1,111 @@
-# CybertraceAI
+# CybertraceAI-Ops
 
-CybertraceAI is an open-source AI agent designed to simplify network management through natural language interactions. It currently specializes in Cisco networking devices, with plans to expand support to other vendors like SONiC and Juniper.
+CybertraceAI-Ops is an open-source AI agent designed to simplify network management through natural language interactions, focusing on network telemetry data analysis. It is one of the products offered by CybertraceAI.
 
 ## Overview
 
-CybertraceAI uses local language models to interpret and execute network commands, making network management more accessible and efficient. It combines:
+CybertraceAI-Ops uses local large language models (LLMs) to interpret and analyze network telemetry data, making network management more accessible and efficient. It combines:
 - Ollama for local LLM processing (llama 3.2 3B) and embeddings (Nomic)
 - Chainlit for interactive chat interface
 - Langchain for LLM orchestration
-- Netmiko for device communication
+- suzieq for telemetry data analysis
 - Dynamic tool selection using embeddings
 
 ## Roadmap
 
-CybertraceAI is being developed in phases, with each phase introducing new capabilities:
+CybertraceAI-Ops development focuses on the following priorities:
 
-1. **Verification Module** (Currently in Development)
-   - Support for common show commands
-   - Real-time command interpretation
-   - Basic network status monitoring
-   - Device configuration validation
+1. **Enhanced Functionalities**
+   - Expanding telemetry data analysis capabilities
+   - Adding more suzieq-based analysis tools
+   - Improving data visualization options
 
-2. **Configuration Module** (Pending)
-   - Support for configuration commands
-   - Human-in-the-loop approval process
-   - Configuration validation and rollback
-   - Change management integration
-   - Configuration templates and best practices
-
-3. **Observability Module** (Pending)
-   - Advanced telemetry collection
-   - Performance metrics analysis
-   - Custom monitoring dashboards
-   - Anomaly detection
-   - Historical data analysis
-
-4. **Proactivity Module** (Pending)
-   - Automated issue detection
-   - Predictive maintenance
-   - Network optimization recommendations
-   - Automated remediation workflows
-   - Capacity planning insights
+2. **Integration with CybertraceAI-Live**
+   - Seamless integration between telemetry and live data analysis
+   - Unified interface for both products
+   - Combined insights from historical and real-time data
 
 ## Features
 
-- Natural language interface for network commands
+- Natural language interface for network telemetry analysis
 - Local execution using Ollama language models (llama 3.2 3B)
 - Dynamic tool selection using Nomic embeddings
 - Zero-cloud dependency - runs entirely on your infrastructure
-- Secure credential management with session-based storage
+- Secure API token management
 - Interactive streaming responses with interpretation
-- Supports the following Cisco networking commands:
-  - `show running-config` - View current device configuration
-  - `show version` - Check system hardware and software status
-  - `show ip route` - View IP routing table
-  - `show interfaces` - Check detailed interface information
-  - `show cdp neighbors` - View connected devices
-  - `show vlan` - Check VLAN configuration
-  - `show spanning-tree` - View spanning tree status
-  - `show ip ospf` - Check OSPF routing information
-  - `show ip bgp` - View BGP routing information
-  - `show processes cpu` - Monitor CPU utilization
-  - `show interface description` - View interface descriptions
-  - `show ip interface brief` - Check interface IP and status
-  - `show ip protocols` - View IP protocol information
-  - `show logging` - View system logs and events
+- Powered by suzieq for comprehensive network telemetry analysis:
+  - Device information and status
+  - Interface analytics
+  - Routing table analysis
+  - BGP session monitoring
+  - OSPF network state
+  - LLDP neighbor discovery
+  - VLAN configuration
+  - MAC address tracking
+  - ARP/ND table analysis
+  - MLAG status
+  - EVPN VNI information
+  - Path analysis with EVPN overlay support
+  - Network topology visualization
+  - File system monitoring
+  - Poller statistics
 
 ## Known Issues
 
-- The `show running-config` and `show logging` commands may experience timeout issues with larger configurations.
+- Assert functionality is currently under active development
+- Some complex queries may require multiple interactions for optimal results
+- Large dataset queries may experience longer processing times
 
-## Prerequisites
+## Special Thanks
 
-- Python 3.11 or higher
-- Ollama installed locally with:
-  - llama 3.2 3B model for command processing
-  - Nomic embedding model for tool selection
-- Access to Cisco networking devices
-- Required Python packages:
-  - chainlit
-  - langchain
-  - netmiko
-  - langgraph
-- Minimum 16GB RAM required
-- 64GB free disk space
-- NVIDIA Series 40 graphics card is desirable for optimal performance
-
-## Quick Start
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/cybertrace-ai.git
-   cd cybertrace-ai
-   ```
-
-2. Create and activate a virtual environment:
-   ```bash
-   # On Windows
-   python -m venv venv
-   
-   # Activate on Windows CMD
-   .\venv\Scripts\activate.bat
-   
-   # Activate on Windows PowerShell
-   .\venv\Scripts\Activate.ps1
-
-   # On macOS/Linux
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Configure your environment:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your settings if needed
-   ```
-
-5. Run CybertraceAI:
-   ```bash
-   chainlit run chainlit_app.py
-   ```
-
-## Usage
-
-Once configured, you can start interacting with CybertraceAI using natural language commands. The system will securely prompt for device credentials on first use and cache them for the session.
-
-### Example Commands:
-```bash
-# Check interface status
-"Show me the status of all interfaces on 192.168.1.10"
-
-# Verify VLAN configuration
-"List all VLANs and their associated ports on 10.0.0.1"
-
-# Troubleshoot connectivity
-"Check if there are any errors on GigabitEthernet1/0/1 for device 172.16.0.100"
-
-# View running configuration
-"Show the running configuration of device 192.168.2.50"
-```
-
-## Extending Commands
-
-CybertraceAI can be extended with additional Cisco IOS commands by modifying the following files:
-
-1. In `tools.py`:
-   ```python
-   # Add to cisco_commands dictionary
-   cisco_commands = {
-       # ... existing commands ...
-       "your new command": "Description of the command",
-   }
-   ```
-
-2. The system will automatically:
-   - Create the necessary tool functions
-   - Register the tools with unique IDs
-   - Index the commands in the vector store for dynamic selection
-
-3. Update the command description in `app.py` system template under the appropriate category:
-   ```python
-   AVAILABLE TOOLS:
-   // ... existing categories ...
-   CATEGORY:
-   - your_new_command: Description of what it does
-   ```
-
-Remember to:
-- Ensure the command is supported by Cisco IOS
-- Add proper error handling
-- Test thoroughly before deployment
-- Consider command timeout requirements
+Special thanks to Dinesh G Dutt and the entire suzieq team for creating the powerful network observability engine that powers CybertraceAI-Ops. Check out the suzieq project at [github.com/netenglabs/suzieq](https://github.com/netenglabs/suzieq).
 
 ## Security Considerations
 
-- Credentials are stored only in session memory
-- Password inputs are masked in the UI
-- No data is sent to external servers
+- Secure API token management
+- No data sent to external servers
 - All processing happens locally
-- Automatic credential cleanup
-- Session-based authentication
+- Encrypted API communications
 
 ## Architecture
 
-- `chainlit_app.py`: Main application interface and chat handling
-- `app.py`: Core logic and LLM configuration
-- `tools.py`: Network command implementations
-- Uses Langchain for LLM orchestration
-- Implements streaming responses for real-time feedback
-- Includes comprehensive error handling and debugging
+Core Components:
+- `chainlit_app.py`: Interactive chat interface and streaming response handler
+- `app.py`: Core logic, LLM orchestration, and tool selection
+- `tools.py`: suzieq API integration and tool registry
+- `embeddings.py`: Dynamic tool selection using vector embeddings
+
+Integration Components:
+- Langchain for LLM orchestration and tool management
+- Chainlit for interactive chat interface
+- suzieq for network telemetry analysis
+- Ollama for local LLM processing
+- Vector store for intelligent tool selection
+
+Features:
+- Streaming responses for real-time feedback
+- Comprehensive error handling and debugging
+- Dynamic tool selection based on query context
+- Session-based state management
+- Modular architecture for easy extension
+
+## Philosophy
+
+CybertraceAI-Ops shares suzieq's core philosophy about network observability. Like suzieq, we believe that:
+
+- Network observability goes beyond traditional monitoring and alerting
+- The true measure of observability is how easily you can answer questions about your network
+- Network engineers and designers need tools that enhance their understanding of network behavior
+- Multi-vendor support is essential for modern network environments
+- Open-source solutions promote transparency and community-driven improvements
+
+As the first open-source, multi-vendor network observability platform, suzieq established a foundation that CybertraceAI-Ops builds upon by adding:
+- Natural language interaction with network telemetry data
+- AI-powered interpretation of network states
+- Dynamic tool selection based on context
+- Interactive streaming responses for real-time insights
+
+We believe that combining suzieq's powerful observability engine with AI-driven natural language processing creates a more accessible and efficient way to understand your network.
 
 ## Contributing
 
@@ -208,4 +120,3 @@ This project is licensed under the Apache 2.0 License. See the [LICENSE](./LICEN
 - Create an issue on GitHub
 - Join our [Discord community](https://discord.gg/#)
 - Email: luis.poveda@cybertraceai.com
-

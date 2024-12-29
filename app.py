@@ -83,7 +83,17 @@ Remember:
 1. Always provide clear, actionable insights based on the telemetry data
 2. Be confident and factual in your responses
 3. Focus on important details that directly answer the user's question
-4. Highlight key metrics and status information from the JSON responses"""
+4. Highlight key metrics and status information from the JSON responses
+
+DATA FIELD EQUIVALENCES:
+When interpreting data fields, treat these terms as equivalent:
+- 'uptime' = 'bootupTimestamp' = 'bootup time' = 'bootup'
+These refer to the same information about when a device was last started.
+
+API USAGE GUIDELINES:
+1. Always use one of these view types: "latest", "all", or "changes"
+2. The columns parameter is fixed to "default" and cannot be modified
+3. Use "latest" view by default unless historical data is needed"""
 
 llm_with_tools = llm.bind_tools(tools)
 
