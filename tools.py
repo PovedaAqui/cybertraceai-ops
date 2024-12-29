@@ -10,6 +10,7 @@ ACCESS_TOKEN = "496157e6e869ef7f3d6ecb24a6f6d847b224ee4f"
 
 # Define valid view values
 ViewType = Literal["latest", "all", "changes"]
+VerbType = Literal["show", "summarize"]
 
 def create_api_call(resource: str, description: str) -> StructuredTool:
     """Creates a tool for executing Suzieq API calls."""
@@ -18,6 +19,7 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
     
     async def api_command(
         view: ViewType = "latest",
+        verb: VerbType = "show",
         start_time: Optional[str] = None,
         end_time: Optional[str] = None
     ) -> str:
@@ -27,7 +29,7 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
             'access_token': ACCESS_TOKEN
         }
         
-        # Build query parameters - only include non-None values
+        # Build query parameters
         params = {
             'view': view,
             'columns': 'default',
@@ -40,7 +42,7 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
         if end_time and end_time.lower() != 'null':
             params['end_time'] = end_time
             
-        url = f"{BASE_URL}/{resource}/show"
+        url = f"{BASE_URL}/{resource}/{verb}"
         
         try:
             async with aiohttp.ClientSession() as session:
