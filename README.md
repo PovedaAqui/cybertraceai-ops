@@ -58,7 +58,7 @@ CybertraceAI-Ops development focuses on the following priorities:
 
 ## Special Thanks
 
-Special thanks to Dinesh G Dutt and the entire suzieq team for creating the powerful network observability engine that powers CybertraceAI-Ops. Check out the suzieq project at [github.com/netenglabs/suzieq](https://github.com/netenglabs/suzieq).
+Special thanks to Dinesh G Dutt, Justin Pietschand, and the entire suzieq team and contributors for creating the powerful network observability engine that powers CybertraceAI-Ops. Check out the suzieq project at [github.com/netenglabs/suzieq](https://github.com/netenglabs/suzieq).
 
 ## Security Considerations
 
