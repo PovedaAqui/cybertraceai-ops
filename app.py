@@ -18,7 +18,7 @@ class State(TypedDict):
     selected_tools: list[str]
 
 llm = ChatOllama(
-    model="llama3.2:latest",
+    model="llama3.1:8b",
     model_kwargs={"temperature": 0.1, 
                   "top_p": 0.9, 
                   "frequency_penalty": 0.0, 

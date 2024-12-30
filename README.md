@@ -5,11 +5,52 @@ CybertraceAI-Ops is an open-source AI agent designed to simplify network managem
 ## Overview
 
 CybertraceAI-Ops uses local large language models (LLMs) to interpret and analyze network telemetry data, making network management more accessible and efficient. It combines:
-- Ollama for local LLM processing (llama 3.2 3B) and embeddings (Nomic)
+- Ollama for local LLM processing (llama 3.1 8B) and embeddings (Nomic)
 - Chainlit for interactive chat interface
 - Langchain for LLM orchestration
 - suzieq for telemetry data analysis
 - Dynamic tool selection using embeddings
+
+## Installation
+
+1. **Prerequisites**
+   - Python 3.9 or higher
+   - [Ollama](https://ollama.ai/) installed and running
+   - Git
+
+2. **Clone the Repository**
+   ```bash
+   git clone https://github.com/yourusername/CybertraceAI-Ops.git
+   cd CybertraceAI-Ops
+   ```
+
+3. **Set Up Virtual Environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use: venv\Scripts\activate
+   ```
+
+4. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. **Install and Pull Required Models**
+   ```bash
+   ollama pull llama3.1:8b
+   ollama pull nomic-embed-text
+   ```
+
+## Running the Application
+
+1. **Start Ollama**
+   Ensure Ollama is running in the background
+
+2. **Launch the Application**
+   ```bash
+   chainlit run chainlit_app.py --port 8010 -w
+   ```
+   The application will be available at `http://localhost:8010`
 
 ## Roadmap
 
@@ -28,7 +69,7 @@ CybertraceAI-Ops development focuses on the following priorities:
 ## Features
 
 - Natural language interface for network telemetry analysis
-- Local execution using Ollama language models (llama 3.2 3B)
+- Local execution using Ollama language models (llama 3.1 8B)
 - Dynamic tool selection using Nomic embeddings
 - Zero-cloud dependency - runs entirely on your infrastructure
 - Secure API token management
