@@ -91,8 +91,7 @@ suzieq_resources = {
     "evpnVni": "Shows EVPN VNI information",
     "fs": "Shows filesystem information",
     "sqpoller": "Shows poller information",
-    "table": "Shows table information",
-    "topology": "Shows network topology information (alpha)",
+    "topology": "Shows network topology information",
     "path": "Shows path information between endpoints"
 }
 
