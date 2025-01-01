@@ -44,10 +44,10 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
             'access_token': ACCESS_TOKEN
         }
         
-        # Only add time parameters if they have actual values
-        if start_time and start_time.lower() != 'null':
+        # Only add time parameters if they are non-empty strings
+        if start_time:  # This will exclude empty strings
             params['start_time'] = start_time
-        if end_time and end_time.lower() != 'null':
+        if end_time:    # This will exclude empty strings
             params['end_time'] = end_time
             
         url = f"{BASE_URL}/{resource}/{verb}"
