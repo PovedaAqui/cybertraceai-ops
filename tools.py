@@ -28,8 +28,8 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
     async def api_command(
         view: ViewType = "latest",
         verb: VerbType = "show",
-        start_time: Optional[str] = None,
-        end_time: Optional[str] = None
+        start_time: str = "",
+        end_time: str = ""
     ) -> str:
         """Execute Suzieq API call"""
         headers = {
