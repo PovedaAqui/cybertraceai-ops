@@ -28,8 +28,8 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
     async def api_command(
         view: ViewType = "latest",
         verb: VerbType = "show",
-        start_time: str = "",
-        end_time: str = ""
+        start_time: Optional[str] = "",
+        end_time: Optional[str] = ""
     ) -> str:
         """Execute Suzieq API call"""
         headers = {
@@ -37,17 +37,17 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
             'access_token': ACCESS_TOKEN
         }
         
-        # Build query parameters with fixed columns="default"
+        # Build base query parameters
         params = {
             'view': view,
-            'columns': 'default',  # Hardcoded to always use default
+            'columns': 'default',
             'access_token': ACCESS_TOKEN
         }
         
-        # Only add time parameters if they are non-empty strings
-        if start_time:  # This will exclude empty strings
+        # Only add time parameters if they have actual values
+        if start_time and start_time != "None":
             params['start_time'] = start_time
-        if end_time:    # This will exclude empty strings
+        if end_time and end_time != "None":
             params['end_time'] = end_time
             
         url = f"{BASE_URL}/{resource}/{verb}"
