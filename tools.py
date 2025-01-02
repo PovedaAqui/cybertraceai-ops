@@ -18,7 +18,7 @@ if not ACCESS_TOKEN:
 
 # Define valid view values
 ViewType = Literal["latest", "all", "changes"]
-VerbType = Literal["show", "summarize"]
+VerbType = Literal["show", "summarize", "assert"]
 
 def create_api_call(resource: str, description: str) -> StructuredTool:
     """Creates a tool for executing Suzieq API calls."""
@@ -32,6 +32,10 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
         end_time: Optional[str] = ""
     ) -> str:
         """Execute Suzieq API call"""
+        # Validate assert verb usage
+        if verb == "assert" and resource.lower() not in ["bgp", "ospf"]:
+            return "Error: 'assert' verb can only be used with BGP or OSPF resources"
+            
         headers = {
             'accept': 'application/json',
             'access_token': ACCESS_TOKEN

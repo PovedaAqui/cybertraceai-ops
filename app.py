@@ -100,6 +100,14 @@ API USAGE GUIDELINES:
 3. For verb parameter, use only:
    - "show" for detailed output
    - "summarize" for summary output (not "summary")
+   - "assert" ONLY for BGP or OSPF troubleshooting queries
+
+TROUBLESHOOTING GUIDELINES:
+- For BGP or OSPF troubleshooting queries, always use verb="assert"
+- Assert results interpretation:
+  * Output value of "pass" indicates no configuration issues
+  * Non-zero values (typically 255) indicate problems that need attention
+- Do NOT use "assert" for non-BGP/OSPF queries
 
 COMMON PATTERNS:
 - For summary requests: Use verb="summarize" with view="latest"
@@ -108,6 +116,7 @@ COMMON PATTERNS:
   * When using start_time or end_time, view MUST be "all"
   * Time format must be "YYYY-MM-DD hh:mm:ss" (e.g., "2024-03-20 14:30:00")
 - For current state: Use verb="show" with view="latest"
+- For BGP/OSPF troubleshooting: Use verb="assert" with view="latest"
 
 AVAILABLE INFORMATION:
 
