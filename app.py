@@ -65,6 +65,10 @@ QUERY OPTIMIZATION:
      "state": "<bgp_state>"    # BGP filters only: Established, NotEstd, dynamic, !Established, !NotEstd, !dynamic
    }
 
+3. Filters equivalents
+    For device:
+        - IP address = address
+
 RESPONSE FORMAT:
 1. Direct answer to the user's query
 2. Recommended Follow-up questions (if applicable)
