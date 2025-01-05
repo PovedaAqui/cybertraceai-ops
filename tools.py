@@ -125,17 +125,20 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
                 'access_token': ACCESS_TOKEN
             }
             
-            # Handle multiple column filters
-            columns = []
+            # Handle multiple columns by creating separate column parameters
             for key, value in filters.items():
                 if key == "columns":
-                    columns.append(value)
+                    if isinstance(value, str):
+                        # Split on comma or space if present
+                        if "," in value or " " in value:
+                            columns = [c.strip() for c in value.replace(",", " ").split()]
+                            # Add each column as a separate parameter
+                            for col in columns:
+                                params[key] = col
+                        else:
+                            params[key] = value
                 else:
                     params[key] = value
-            
-            # If we have columns, join them with commas for the API
-            if columns:
-                params["columns"] = ",".join(columns)
                 
             url = f"{BASE_URL}/{resource}/{verb}"
             
@@ -163,7 +166,7 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
     )
 
 # Update resource descriptions to include column information
-common_filters = "Common filters: hostname, start-time, end-time, view (latest/all/changes), namespace, columns."
+common_filters = "Common filters: hostname, start-time, end-time, view (latest/all/changes), namespace."
 
 suzieq_resources = {
     "device": f"{common_filters}Shows information about network devices. Use for: device inventory, hardware details, OS versions, uptime, and operational status. Available columns: {', '.join(AVAILABLE_COLUMNS['device'])}",
