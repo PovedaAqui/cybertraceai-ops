@@ -166,7 +166,7 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
     )
 
 # Update resource descriptions to include column information
-common_filters = "Common filters: hostname, start-time, end-time, view (latest/all/changes), namespace."
+common_filters = "Common filters: hostname, start-time, end-time, view (latest/all/changes), namespace. "
 
 suzieq_resources = {
     "device": f"{common_filters}Shows information about network devices. Use for: device inventory, hardware details, OS versions, uptime, and operational status. Available columns: {', '.join(AVAILABLE_COLUMNS['device'])}",

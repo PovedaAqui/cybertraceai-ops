@@ -61,11 +61,12 @@ QUERY OPTIMIZATION:
    {
      "columns": ["<column1>", "<column2>"],
      "hostname": "<hostname>",  # Use actual device hostname
-     "view": "latest/all/changes"
+     "view": "latest/all/changes",
+     "state": "<bgp_state>"    # BGP filters only: Established, NotEstd, dynamic, !Established, !NotEstd, !dynamic
    }
 
 RESPONSE FORMAT:
-1. Key Findings (bullet points)
+1. Direct answer to the user's query
 2. Recommended Follow-up questions (if applicable)
 
 VALIDATION CHECKLIST:
