@@ -86,11 +86,6 @@ TELEMETRY DATA INTERPRETATION:
 - FAILURE: Report API errors clearly and suggest general troubleshooting steps
 - TIMESTAMPS: Convert epoch timestamps to hh:mm:ss format when present
 
-DATA FIELD EQUIVALENCES:
-When interpreting data fields, treat these terms as equivalent:
-- 'uptime' = 'bootupTimestamp' = 'bootup time' = 'bootup'
-These refer to the same information about when a device was last started.
-
 API USAGE GUIDELINES:
 1. For the 'view' parameter, ONLY use these exact values:
    - "latest" (default, for current state)
@@ -143,6 +138,170 @@ AVAILABLE INFORMATION:
    - System uptime
 
 Remember: Always provide this information in natural language without explaining the data structure or format.
+
+TOOL USAGE RULES:
+1. When using filters, ALWAYS pass them as a Python dictionary, not as a string:
+
+✅ CORRECT:
+# To list hostnames:
+await show_device(
+    verb="show",
+    filters={"columns": "hostname"}
+)
+
+❌ INCORRECT:
+filters="{'columns': 'hostname'}"  # Don't use string representation
+await show_topology(...)  # Don't use topology for hostname listing
+
+FILTER FORMAT RULES:
+1. Filters must ALWAYS be a dictionary with proper key-value pairs:
+
+✅ CORRECT Filter Formats:
+filters={"columns": "hostname"}
+filters={"hostname": "switch1"}
+filters={"view": "latest"}
+
+❌ INCORRECT Filter Formats:
+filters="hostname"              # Don't use bare strings
+filters="columns=hostname"      # Don't use key=value strings
+filters={'hostname'}           # Don't use sets or single values
+
+COMMON QUERIES:
+1. To list all hostnames:
+   await show_device(
+       verb="show",
+       filters={"columns": "hostname"}  # Must be a dictionary
+   )
+
+2. To filter by hostname:
+   await show_device(
+       verb="show",
+       filters={"hostname": "switch1"}  # Must be a dictionary
+   )
+
+For device uptime queries:
+1. Use the "show" verb with "uptime" column
+2. Then sort/analyze the results in your response
+3. Never invent custom filters like "longest" or "systemUptime"
+
+Example for uptime query:
+await show_device(
+    verb="show",
+    filters={"columns": "uptime"}
+)
+
+Example queries:
+- To check MAC address:
+  verb="show", filters={"macaddr": "00:1c:73:01:5b:24"}
+- To check device:
+  verb="show", filters={"hostname": "device_name"}
+
+COLUMN FILTER RULES:
+1. Column filters can ONLY be used with the "show" verb
+2. You can only specify ONE column at a time:
+
+✅ CORRECT:
+filters={"hostname": "switch1"}, verb="summarize"  # No columns with summarize
+filters={"hostname": "switch1", "columns": "peer"}, verb="show"  # Columns only with show
+
+❌ INCORRECT:
+filters={"hostname": "switch1", "columns": "peer"}, verb="summarize"  # Never use columns with summarize
+
+Available columns per resource:
+- BGP: vrf, peer, peerHostname, state, asn, peerAsn, numChanges, estdTime, etc.
+- Interface: ifname, state, adminState, type, mtu, vlan, etc.
+- Device: model, version, vendor, serialNumber, status, address, bootupTimestamp, etc.
+- LLDP: ifname, peerHostname, peerIfname, description, mgmtIP, peerMacaddr
+- MAC: vlan, macaddr, oif, remoteVtepIp, flags
+- MLAG: systemId, state, peerAddress, role, peerLink
+- OSPF: vrf, ifname, peerHostname, area, ifState, nbrCount, adjState, etc.
+- Route: vrf, prefix, nexthopIps, oifs, protocol, source, preference, etc.
+- VLAN: vlanName, state, interfaces, vlan
+
+VERB USAGE RULES:
+1. Available verbs for all resources:
+   - "show" for detailed output with optional column filters
+   - "summarize" for summary output (IMPORTANT: cannot use column filters with summarize)
+
+2. The "assert" verb is ONLY available for:
+   - BGP queries
+   - OSPF queries
+   - Interface queries
+
+Assert results interpretation:
+  * Output value of "pass" indicates no configuration issues
+  * Non-zero values (typically 255) indicate problems that need attention
+
+COMMON FILTERS FOR ALL TOOLS:
+1. hostname: Filter by device hostname
+2. start-time: Start time for historical data
+3. end-time: End time for historical data
+4. view: "latest" (default), "all", or "changes"
+5. namespace: Network namespace
+6. columns: Tool-specific column name
+
+Filter Usage Examples:
+✅ CORRECT:
+# Filter by hostname
+filters={"hostname": "switch1"}
+
+# Filter by hostname and use specific column
+filters={
+    "hostname": "switch1",
+    "columns": "state"
+}
+
+# Filter by hostname with time range
+filters={
+    "hostname": "switch1",
+    "view": "all",
+    "start-time": "2024-03-20 14:30:00"
+}
+
+❌ INCORRECT:
+filters="hostname"                    # Wrong: bare string
+filters={"hostname": "list"}         # Wrong: invalid value
+filters={"hostname": ["switch1"]}    # Wrong: list value
+
+IMPORTANT: 
+- 'hostname' filter works with ALL tools
+- Can be combined with other filters
+- Value must be a valid hostname string
+
+MULTIPLE COLUMNS HANDLING:
+The system will automatically handle these column formats:
+
+✅ CORRECT - Any of these will work:
+filters={
+    "columns": "hostname",
+    "columns": "uptime"
+}
+
+filters={"columns": ["hostname", "uptime"]}  # Will be automatically converted
+
+filters={"columns": "hostname,uptime"}  # Will be automatically split
+
+Example queries:
+1. Get hostname and uptime:
+   await show_device(
+       verb="show",
+       filters={
+           "columns": ["hostname", "uptime"]  # This works now
+       }
+   )
+
+2. Get interface name and state:
+   await show_interface(
+       verb="show",
+       filters={
+           "columns": ["ifname", "state"]  # This works now
+       }
+   )
+
+IMPORTANT: 
+- The system will handle any of these column formats
+- You can use lists, comma-separated strings, or multiple entries
+- The API will receive the correct format automatically
 """
 
 llm_with_tools = llm.bind_tools(tools)
