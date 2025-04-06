@@ -24,18 +24,38 @@ CybertraceAI-Ops uses local large language models (LLMs) to interpret and analyz
    cd CybertraceAI-Ops
    ```
 
-3. **Set Up Virtual Environment**
+3. **Set Up Virtual Environment and Install Dependencies**
+
+   ### Using uv (Fast Python Package Installer)
+   
+   [uv](https://github.com/astral-sh/uv) is a fast Python package installer and resolver.
+   
+   ```bash
+   # Install uv if you don't have it yet
+   pip install uv
+   
+   # Create a virtual environment
+   uv venv .venv-uv
+   
+   # Activate the virtual environment
+   # On Windows:
+   .venv-uv\Scripts\activate
+   # On Unix/MacOS:
+   source .venv-uv/bin/activate
+   
+   # Install project and dependencies
+   uv pip install -e .
+   ```
+
+   ### Using pip (Alternative Method)
+   
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows use: venv\Scripts\activate
+   pip install -e .
    ```
 
-4. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-5. **Install and Pull Required Models**
+4. **Install and Pull Required Models**
    ```bash
    ollama pull llama3.1:8b
    ollama pull nomic-embed-text

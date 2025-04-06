@@ -11,7 +11,7 @@ import ast
 load_dotenv()
 
 # API configuration
-BASE_URL = "http://localhost:8000/api/v2"
+BASE_URL = "http://192.168.0.47:8000/api/v2"
 ACCESS_TOKEN = os.getenv('SUZIEQ_ACCESS_TOKEN')
 
 if not ACCESS_TOKEN:
@@ -169,35 +169,35 @@ def create_api_call(resource: str, description: str) -> StructuredTool:
 common_filters = "Common filters: hostname, start-time, end-time, view (latest/all/changes), namespace. "
 
 suzieq_resources = {
-    "device": f"{common_filters}Shows information about network devices. Use for: device inventory, hardware details, OS versions, uptime, and operational status. Available columns: {', '.join(AVAILABLE_COLUMNS['device'])}",
+    "device": f"{common_filters}Network device inventory and status tracker. Hardware details, OS versions, uptime monitoring. Columns: {', '.join(AVAILABLE_COLUMNS['device'])}",
     
-    "interface": f"{common_filters}Shows network interface details. Use for: interface status, configuration, IP addresses, MTU, VLANs, and link state. Available columns: {', '.join(AVAILABLE_COLUMNS['interface'])}",
+    "interface": f"{common_filters}Network interface configuration and status monitor. Tracks interface state, IPs, MTU, VLANs. Columns: {', '.join(AVAILABLE_COLUMNS['interface'])}",
     
-    "route": f"{common_filters}Shows routing table information. Use for: network routes, next-hops, VRF paths, and route sources. Available columns: {', '.join(AVAILABLE_COLUMNS['route'])}",
+    "route": f"{common_filters}Routing table analyzer. Shows network paths, next-hops, VRF configurations. Columns: {', '.join(AVAILABLE_COLUMNS['route'])}",
     
-    "bgp": f"{common_filters}Shows BGP protocol information. Use for: BGP neighbor status, ASN details, session state, and peer relationships. Supports 'assert' for troubleshooting. Available columns: {', '.join(AVAILABLE_COLUMNS['bgp'])}",
+    "bgp": f"{common_filters}BGP protocol state monitor. Tracks BGP peers, ASNs, sessions. Supports assertion testing. Columns: {', '.join(AVAILABLE_COLUMNS['bgp'])}",
     
-    "ospf": f"{common_filters}Shows OSPF protocol information. Use for: OSPF neighbor status, area configuration, interface state, and neighbor counts. Supports 'assert' for troubleshooting. Available columns: {', '.join(AVAILABLE_COLUMNS['ospf'])}",
+    "ospf": f"{common_filters}OSPF protocol state monitor. Shows neighbors, areas, interface states. Supports assertion testing. Columns: {', '.join(AVAILABLE_COLUMNS['ospf'])}",
     
-    "lldp": f"{common_filters}Shows LLDP neighbor discovery information. Use for: physical connectivity, neighbor details, and topology mapping. Available columns: {', '.join(AVAILABLE_COLUMNS['lldp'])}",
+    "lldp": f"{common_filters}LLDP neighbor discovery tracker. Maps physical connectivity and topology. Columns: {', '.join(AVAILABLE_COLUMNS['lldp'])}",
     
-    "vlan": f"{common_filters}Shows VLAN configuration and status. Use for: VLAN assignments, interface memberships, and VLAN state. Available columns: {', '.join(AVAILABLE_COLUMNS['vlan'])}",
+    "vlan": f"{common_filters}VLAN configuration tracker. Monitors VLAN states and interface assignments. Columns: {', '.join(AVAILABLE_COLUMNS['vlan'])}",
     
-    "mac": f"{common_filters}Shows MAC address table information. Use for: MAC address lookups, VTEP associations, and interface mappings. Available columns: {', '.join(AVAILABLE_COLUMNS['mac'])}",
+    "mac": f"{common_filters}MAC address table monitor. Tracks MAC locations and VTEP mappings. Columns: {', '.join(AVAILABLE_COLUMNS['mac'])}",
     
-    "arpnd": f"{common_filters}Shows ARP/ND table information. Use for: IP-to-MAC mappings, neighbor discovery, and address resolution",
+    "arpnd": f"{common_filters}ARP/ND table monitor. Maps IP addresses to MAC addresses.",
     
-    "mlag": f"{common_filters}Shows Multi-Chassis Link Aggregation information. Use for: MLAG status, peer relationships, and link state. Available columns: {', '.join(AVAILABLE_COLUMNS['mlag'])}",
+    "mlag": f"{common_filters}MLAG state tracker. Monitors multi-chassis link aggregation status. Columns: {', '.join(AVAILABLE_COLUMNS['mlag'])}",
     
-    "evpnVni": f"{common_filters}Shows EVPN VNI information. Use for: EVPN configuration, VNI status, and VTEP details",
+    "evpnVni": f"{common_filters}EVPN VNI configuration monitor. Tracks EVPN and VTEP states.",
     
-    "fs": f"{common_filters}Shows filesystem information. Use for: storage utilization and filesystem status",
+    "fs": f"{common_filters}Filesystem utilization tracker. Monitors storage states.",
     
-    "sqpoller": f"{common_filters}Shows poller information. Use for: monitoring data collection status and timing",
+    "sqpoller": f"{common_filters}Data collection monitor. Tracks polling status and timing.",
     
-    "topology": f"{common_filters}Shows network topology information. Use for: network-wide connectivity and path analysis",
+    "topology": f"{common_filters}Network topology analyzer. Maps network-wide connectivity.",
     
-    "path": f"{common_filters}Shows path information between endpoints. Use for: tracing network paths and analyzing connectivity"
+    "path": f"{common_filters}Network path tracer. Analyzes connectivity between endpoints."
 }
 
 # Create a tool registry with UUID keys
