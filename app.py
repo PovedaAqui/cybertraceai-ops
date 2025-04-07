@@ -6,16 +6,12 @@ from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
 from typing import Dict, Annotated, TypedDict
 import uuid
-from tools import tools, tool_registry
-from embeddings import setup_vector_store, search_similar_tools
+from tools import tools
+from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 
-# Initialize vector store
-vector_store = setup_vector_store(tool_registry)
-
-# Define the state structure
+# Define the state structure (simplified)
 class State(TypedDict):
     messages: Annotated[list, add_messages]
-    selected_tools: list[str]
 
 llm = ChatOllama(
     model="llama3.1:8b",
@@ -86,41 +82,19 @@ Remember:
 • Maintain clear data lineage
 """
 
+# Bind all tools to the LLM initially
 llm_with_tools = llm.bind_tools(tools)
 
-def select_tools(state: State) -> Dict:
-    """Select relevant tools based on the user's message content."""
-    # Get the last message from the user
-    messages = state["messages"]
-    if not messages:
-        return {"selected_tools": []}
-    
-    last_message = messages[-1]
-    if not isinstance(last_message, HumanMessage):
-        return {"selected_tools": []}
-
-    # Search for relevant tools using vector similarity
-    similar_tools = search_similar_tools(vector_store, last_message.content, k=3)
-    selected_tool_ids = [doc[0].id for doc in similar_tools]
-    
-    return {"selected_tools": selected_tool_ids}
-
 def assistant(state: State):
-    """Process messages with selected tools."""
+    """Process messages with available tools."""
     # Add system message to the conversation context
     system_message = SystemMessage(content=system_template)
     messages = state['messages']
     if not any(isinstance(msg, SystemMessage) for msg in messages):
         messages.insert(0, system_message)
     
-    # Get selected tools
-    selected_tools = [tool_registry[id] for id in state.get("selected_tools", [])]
-    if not selected_tools:
-        selected_tools = tools  # Fallback to all tools if none selected
-    
-    # Bind selected tools to LLM
-    llm_with_selected_tools = llm.bind_tools(selected_tools)
-    response = llm_with_selected_tools.invoke(messages)
+    # Invoke the LLM with all tools bound
+    response = llm_with_tools.invoke(messages)
     return {"messages": [response]}
 
 def should_continue(state: MessagesState) -> str:
@@ -147,13 +121,11 @@ def generate_thread_id() -> str:
 workflow = StateGraph(State)
 
 # Define the nodes
-workflow.add_node("select_tools", select_tools)
 workflow.add_node("assistant", assistant)
 workflow.add_node("tools", ToolNode(tools))
 
-# Set the entrypoint as select_tools
-workflow.add_edge(START, "select_tools")
-workflow.add_edge("select_tools", "assistant")
+# Set the entrypoint as assistant
+workflow.add_edge(START, "assistant")
 
 # Add conditional edges
 workflow.add_conditional_edges(
@@ -166,7 +138,7 @@ workflow.add_conditional_edges(
 )
 
 # Add normal edge from tools back to assistant
-workflow.add_edge("tools", "select_tools")
+workflow.add_edge("tools", "assistant")
 
 # Initialize memory
 memory = MemorySaver()

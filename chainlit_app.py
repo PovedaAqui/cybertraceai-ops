@@ -1,7 +1,6 @@
 import chainlit as cl
 from app import react_graph, generate_thread_id
 from langchain_core.messages import HumanMessage
-from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 
 # Store settings that might be reused
 WELCOME_MESSAGE = """👋 Hi! I'm your networking assistant.
@@ -87,4 +86,3 @@ async def main(message: cl.Message):
         ).send()
     finally:
         print("[DEBUG] Executing finally block")
-        wait_for_all_tracers()
