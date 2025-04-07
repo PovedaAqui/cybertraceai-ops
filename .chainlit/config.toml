@@ -3,7 +3,7 @@
 enable_telemetry = true
 
 [server]
-port = 8010
+port = 8011
 
 # List of environment variables to be provided by each user to use the app.
 user_env = []
@@ -19,6 +19,9 @@ allow_origins = ["*"]
 
 # Follow symlink for asset mount (see https://github.com/Chainlit/chainlit/issues/317)
 # follow_symlink = false
+
+[auth]
+provider = "auth0"
 
 [features]
 # Process and display HTML in messages. This can be a security risk (see https://stackoverflow.com/questions/19603097/why-is-it-dangerous-to-render-user-generated-html-or-javascript)

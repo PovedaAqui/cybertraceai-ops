@@ -1,6 +1,20 @@
 import chainlit as cl
 from app import react_graph, generate_thread_id
 from langchain_core.messages import HumanMessage
+from typing import Dict, Optional
+
+
+@cl.oauth_callback
+def oauth_callback(
+  provider_id: str,
+  token: str,
+  raw_user_data: Dict[str, str],
+  default_user: cl.User,
+) -> Optional[cl.User]:
+  # Simply return the default user object to allow access
+  # You can add custom logic here to filter users if needed
+  # based on raw_user_data or provider_id
+  return default_user
 
 # Store settings that might be reused
 WELCOME_MESSAGE = """👋 Hi! I'm your networking assistant.
