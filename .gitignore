@@ -70,6 +70,7 @@ coverage.xml
 
 # Environment variables
 .venv-uv/
+.venv/
 
 # Local database files
 assets/data/

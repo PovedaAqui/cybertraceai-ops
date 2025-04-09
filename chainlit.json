@@ -3,7 +3,7 @@
     "description": "A multivendor networking assistant powered by telemetry data",
     "theme": "dark",
     "hide_cot": false,
-    "userInputTemplate": "Enter your networking query (e.g., 'show interface status' or 'check BGP neighbors')",
+    "userInputTemplate": "Type your network question here...",
     "default_expand_messages": true,
     "chat_bubble": true,
     "markdown": true,
