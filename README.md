@@ -1,6 +1,6 @@
 # CybertraceAI-Ops
 
-CybertraceAI-Ops is an open-source AI agent designed to simplify network management through natural language interactions, focusing on network telemetry data analysis. It is one of the products offered by CybertraceAI.
+CybertraceAI-Ops is an open-source AI agent designed to simplify network observability through natural language interactions. It is one of the products offered by CybertraceAI.
 
 ## Overview
 
@@ -9,12 +9,12 @@ CybertraceAI-Ops uses local large language models (LLMs) to interpret and analyz
 - Chainlit for interactive chat interface
 - Langchain for LLM orchestration
 - suzieq for telemetry data analysis
-- Dynamic tool selection using embeddings
+- Dynamic tool selection using MCP server
 
 ## Installation
 
 1. **Prerequisites**
-   - Python 3.9 or higher
+   - Python 3.10 or higher
    - [Ollama](https://ollama.ai/) installed and running
    - Git
 
@@ -58,7 +58,6 @@ CybertraceAI-Ops uses local large language models (LLMs) to interpret and analyz
 4. **Install and Pull Required Models**
    ```bash
    ollama pull llama3.1:8b
-   ollama pull nomic-embed-text
    ```
 
 ## Running the Application
@@ -71,6 +70,40 @@ CybertraceAI-Ops uses local large language models (LLMs) to interpret and analyz
    chainlit run chainlit_app.py --port 8010 -w
    ```
    The application will be available at `http://localhost:8010`
+
+## Enabling Chat History Persistence (Optional)
+
+To persist chat history and user interactions, you can configure Chainlit's datalayer with a PostgreSQL database. This allows you to store conversation threads, user information, steps, elements, and feedback.
+
+1.  **Deploy a PostgreSQL Database:**
+    Set up a PostgreSQL instance. You can run one locally using Docker or use a managed cloud service.
+
+2.  **Configure Environment Variable:**
+    Add the database connection string to your environment file (e.g., `.env`). Chainlit will automatically detect and use it.
+    ```env
+    DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<database_name>
+    ```
+    For example:
+    ```env
+    DATABASE_URL=postgresql://myuser:mypassword@localhost:5432/chathistory
+    ```
+
+3.  **Apply Database Schema:**
+    You'll need `prisma` installed (`npm install -g prisma` or use `npx`). Run the following command to apply the necessary database schema. This requires the `prisma/schema.prisma` file from the Chainlit datalayer setup. If you don't have it, you might need to clone or integrate parts of the [Chainlit datalayer repository](https://github.com/Chainlit/chainlit-datalayer).
+    ```bash
+    npx prisma migrate deploy
+    ```
+
+4.  **View Data (Optional):**
+    To inspect the data stored in your database, you can use Prisma Studio:
+    ```bash
+    npx prisma studio
+    ```
+
+5.  **Enable Authentication:**
+    Remember to configure user authentication in Chainlit to associate chat history with specific users. See the [Chainlit Authentication Docs](https://docs.chainlit.io/authentication/overview).
+
+For more detailed information and advanced configurations (like cloud storage for elements), refer to the [Chainlit Datalayer repository](https://github.com/Chainlit/chainlit-datalayer).
 
 ## Roadmap
 
@@ -90,7 +123,6 @@ CybertraceAI-Ops development focuses on the following priorities:
 
 - Natural language interface for network telemetry analysis
 - Local execution using Ollama language models (llama 3.1 8B)
-- Dynamic tool selection using Nomic embeddings
 - Zero-cloud dependency - runs entirely on your infrastructure
 - Secure API token management
 - Interactive streaming responses with interpretation
@@ -134,14 +166,13 @@ Core Components:
 - `chainlit_app.py`: Interactive chat interface and streaming response handler
 - `app.py`: Core logic, LLM orchestration, and tool selection
 - `tools.py`: suzieq API integration and tool registry
-- `embeddings.py`: Dynamic tool selection using vector embeddings
+- `client.py`: Handle MCP session
 
 Integration Components:
 - Langchain for LLM orchestration and tool management
 - Chainlit for interactive chat interface
 - suzieq for network telemetry analysis
 - Ollama for local LLM processing
-- Vector store for intelligent tool selection
 
 Features:
 - Streaming responses for real-time feedback
