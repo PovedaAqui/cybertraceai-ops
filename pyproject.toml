@@ -23,6 +23,7 @@ dependencies = [
     "ollama>=0.4.7",
     "python-dotenv>=1.1.0",
     "langchain-mcp-adapters==0.0.7",
+    "asyncpg==0.30.0",
 ]
 
 [project.optional-dependencies]

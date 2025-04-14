@@ -118,15 +118,15 @@ async def main(message: cl.Message):
                 messages = chunk['assistant'].get('messages', [])
                 if messages and messages[0].content:
                     content = messages[0].content
-                    # Create message after tool output
+                    # Create message object first
                     msg = cl.Message(content="")
-                    await msg.send()
-                    # Stream character by character with faster speed
+                    await msg.send() # Send placeholder to get a message ID
+                    # Stream character by character
                     for char in content:
                         await msg.stream_token(char)
-                        await cl.sleep(0.001)  # Reduced to 0.001 for smoother streaming
-                    # Finalize the message
-                    await msg.send()
+                        await cl.sleep(0.005) # Adjusted sleep slightly
+                    # Finalize the message content after streaming
+                    await msg.update()
 
     except Exception as e:
         print(f"[DEBUG] Error occurred: {str(e)}")
