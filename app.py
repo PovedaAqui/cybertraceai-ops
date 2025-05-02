@@ -1,4 +1,5 @@
-from langchain_ollama import ChatOllama
+#from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, AIMessage, ToolMessage
 from langgraph.graph.message import add_messages
 from langgraph.graph import MessagesState, START, END, StateGraph
@@ -7,10 +8,15 @@ from langgraph.checkpoint.memory import MemorySaver
 from typing import Dict, Annotated, TypedDict
 import uuid
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
+from os import getenv
+from dotenv import load_dotenv
 # Import tools and shutdown logic from client.py
 from client import tools
 
-llm = ChatOllama(
+# Load environment variables from .env file
+load_dotenv()
+
+""" llm = ChatOllama(
     model="qwen2.5:7b",
     model_kwargs={"temperature": 0.0, 
                   "top_p": 0.9, 
@@ -20,6 +26,18 @@ llm = ChatOllama(
     streaming=True,
     callbacks=None,
     max_tokens_per_chunk=50
+) """
+
+llm = ChatOpenAI(
+  openai_api_key=getenv("OPENROUTER_API_KEY"),
+  openai_api_base=getenv("OPENROUTER_BASE_URL"),
+  model_name="anthropic/claude-3-7-sonnet",
+  model_kwargs={
+      "temperature": 0.0,
+      "top_p": 0.9,
+      "frequency_penalty": 0.0,
+      "presence_penalty": 0.0,
+  }
 )
 
 system_template = """You are a Network Observability Assistant that uses SuzieQ tools to answer network state queries precisely.

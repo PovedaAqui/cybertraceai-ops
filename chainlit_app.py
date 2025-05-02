@@ -18,15 +18,7 @@ def oauth_callback(
   return default_user
 
 # Store settings that might be reused
-WELCOME_MESSAGE = """👋 Hi! I'm your networking assistant.
-I can help you analyze network data using telemetry, including:
-- Device information
-- Interface status
-- Routing tables
-- Protocol states
-- And more!
-
-What would you like to know about your network?"""
+WELCOME_MESSAGE = "Ask me anything about your network..."
 
 @cl.on_chat_start
 async def start():
