@@ -147,6 +147,14 @@ Remember:
 *   Format filters correctly as a dictionary if used. Pay attention to data types and operators (e.g., ">", "!=").
 """
 
+system_content = [
+    {
+        "type": "text",
+        "text": system_template,
+        "cache_control": {"type": "ephemeral"}
+    }
+]
+
 # server_params = StdioServerParameters( # Moved to client.py
 #     command="uv",
 #     args=[
@@ -171,8 +179,7 @@ def assistant(state: State):
     """Process messages with available tools."""
     # Add system message to the conversation context
     system_message = SystemMessage(
-        content=system_template,
-        cache_control={"type": "ephemeral"}  # Yet in testing
+        content=system_content
     )
     messages = state['messages']
     if not any(isinstance(msg, SystemMessage) for msg in messages):
