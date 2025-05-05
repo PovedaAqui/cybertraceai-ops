@@ -31,13 +31,19 @@ load_dotenv()
 llm = ChatOpenAI(
   openai_api_key=getenv("OPENROUTER_API_KEY"),
   openai_api_base=getenv("OPENROUTER_BASE_URL"),
-  model_name="anthropic/claude-3-7-sonnet",
-  model_kwargs={
-      "temperature": 0.0,
-      "top_p": 0.9,
-      "frequency_penalty": 0.0,
-      "presence_penalty": 0.0,
-  }
+  model_name="anthropic/claude-3.7-sonnet",
+  temperature=0.0,
+  top_p=0.9,
+  frequency_penalty=0.0,
+  presence_penalty=0.0,
+  extra_body={
+      "usage": {"include": True},
+      "provider": {
+          "order": ["Amazon Bedrock", "Azure"],
+          "sort": "latency"
+      },
+      "models": ["anthropic/claude-3.5-sonnet", "openai/gpt-4o"]
+      }
 )
 
 system_template = """You are a Network Observability Assistant that uses SuzieQ tools to answer network state queries precisely.
@@ -164,7 +170,10 @@ else:
 def assistant(state: State):
     """Process messages with available tools."""
     # Add system message to the conversation context
-    system_message = SystemMessage(content=system_template)
+    system_message = SystemMessage(
+        content=system_template,
+        cache_control={"type": "ephemeral"}  # Yet in testing
+    )
     messages = state['messages']
     if not any(isinstance(msg, SystemMessage) for msg in messages):
         messages.insert(0, system_message)
