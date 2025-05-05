@@ -27,7 +27,7 @@ async def start():
     cl.user_session.set("thread_id", generate_thread_id())
     
     # Send welcome message
-    await cl.Message(content=WELCOME_MESSAGE).send()
+    # await cl.Message(content=WELCOME_MESSAGE).send() # <-- Commented out to show default welcome screen
 
 @cl.on_chat_resume
 async def on_chat_resume(thread: Dict):
