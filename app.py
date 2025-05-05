@@ -155,16 +155,6 @@ system_content = [
     }
 ]
 
-# server_params = StdioServerParameters( # Moved to client.py
-#     command="uv",
-#     args=[
-#         "run",
-#         "python",
-#         # IMPORTANT: Ensure this path is correct for your system
-#         r"C:\Users\Luis\Documents\Luis\suzieq-mcp\main.py"
-#     ]
-# )
-
 # Define the state structure (simplified)
 class State(TypedDict):
     messages: Annotated[list, add_messages]
