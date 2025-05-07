@@ -3,6 +3,11 @@ import atexit
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from langchain_mcp_adapters.tools import load_mcp_tools
+from dotenv import load_dotenv
+from os import getenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Global store for MCP client and session (manage carefully in production)
 mcp_session_store = {"session": None, "read": None, "write": None, "client": None}
@@ -13,7 +18,7 @@ server_params = StdioServerParameters(
         "run",
         "python",
         # IMPORTANT: Ensure this path is correct for your system
-        r"C:\Users\Luis\Documents\Luis\suzieq-mcp\main.py"
+        getenv("MCP_SERVER_COMMAND_PATH")
     ]
 )
 
