@@ -11,7 +11,9 @@ from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 from os import getenv
 from dotenv import load_dotenv
 # Import tools and shutdown logic from client.py
-from client import tools
+from client import tools as mcp_tools # Renamed to avoid conflict
+# Import the new local tool
+from utils import humanize_timestamp_tool
 
 # Load environment variables from .env file
 load_dotenv()
@@ -55,6 +57,7 @@ THOUGHT PROCESS:
 4. Determine necessary filters (hostname, vrf, state, namespace, status, vendor, mtu, adminState, portmode, vlan, asn, bfdStatus, afiSafi, area, helloTime, networkType, moveCount, ifname, vni, prefix, protocol, numNexthops, prefixlen, start_time, end_time, view, type, version, usedPercent, etc.) to narrow down the results.
 5. Construct the tool call with the 'table' and optional 'filters' arguments.
 6. Analyze the JSON response and formulate a clear answer for the user.
+7. If the results contain timestamp fields (usually in milliseconds since epoch), use the 'humanize_timestamp_tool' to convert them to readable dates for better comprehension.
 
 AVAILABLE TOOLS:
 
@@ -68,6 +71,11 @@ AVAILABLE TOOLS:
     *   `filters` (Dictionary, Optional): Key-value pairs for filtering (e.g., { "hostname": "leaf01", "namespace": "dual-bgp" }). Omit or use {} for no filters.
     *   Returns: JSON string with summarized results.
 
+3.  **humanize_timestamp_tool**: Converts a UNIX epoch timestamp (in milliseconds) to a human-readable datetime string.
+    *   `timestamp_ms` (Integer, Required): The UNIX epoch timestamp in milliseconds (e.g., 1678886400000).
+    *   `tz` (String, Optional): The target timezone (e.g., 'America/New_York', 'Europe/London'). Defaults to 'UTC'.
+    *   Returns: A string representing the human-readable datetime in the specified timezone (e.g., "2023-03-15 12:00:00 UTC").
+
 # Refined SuzieQ Query Examples (Production Tested)
 
 ## Basic Device and Status Queries
@@ -79,6 +87,23 @@ AVAILABLE TOOLS:
     `{ "table": "device", "filters": { "status": "alive" } }` (using run_suzieq_show)
 *   Show Arista devices:
     `{ "table": "device", "filters": { "vendor": "Arista" } }` (using run_suzieq_show)
+
+### Device Uptime Queries
+
+*   Show uptime for all devices:
+    `{ "table": "device", "filters": { "columns": ["namespace", "hostname", "bootupTimestamp", "status"] } }` (using run_suzieq_show)
+*   Show basic uptime information:
+    `{ "table": "device", "filters": { "columns": ["hostname", "bootupTimestamp", "status"] } }` (using run_suzieq_show)
+*   Show alive devices with their uptime:
+    `{ "table": "device", "filters": { "status": "alive", "columns": ["namespace", "hostname", "bootupTimestamp"] } }` (using run_suzieq_show)
+*   Show devices in a specific namespace with uptime:
+    `{ "table": "device", "filters": { "namespace": "suzieq-demo", "columns": ["hostname", "bootupTimestamp", "status"] } }` (using run_suzieq_show)
+*   Show alive devices in a specific namespace:
+    `{ "table": "device", "filters": { "namespace": "suzieq-demo", "status": "alive", "columns": ["hostname", "bootupTimestamp"] } }` (using run_suzieq_show)
+*   Show uptime for devices from a specific vendor:
+    `{ "table": "device", "filters": { "vendor": "Arista", "columns": ["namespace", "hostname", "bootupTimestamp", "status"] } }` (using run_suzieq_show)
+*   Show uptime for specific model devices:
+    `{ "table": "device", "filters": { "model": "cEOSLab", "columns": ["namespace", "hostname", "bootupTimestamp", "status"] } }` (using run_suzieq_show)
 
 ### Interface Analysis
 
@@ -121,6 +146,42 @@ AVAILABLE TOOLS:
 *   Summarize route distribution:
     `{ "table": "route" }` (using run_suzieq_summarize)
 
+## Working with Timestamps from SuzieQ Output
+
+### Converting Timestamps to Human Readable Format
+SuzieQ output often contains Unix epoch timestamps in milliseconds. Use humanize_timestamp_tool to convert these for improved readability.
+
+*   Convert a timestamp from a device's 'lastBoot' field:
+    `timestamp_ms: 1678886400000` (using humanize_timestamp_tool)
+    Result: "2023-03-15 12:00:00 UTC"
+
+*   Convert a timestamp to local timezone (Eastern Time):
+    `timestamp_ms: 1678886400000, tz: "America/New_York"` (using humanize_timestamp_tool)
+    Result: "2023-03-15 08:00:00 EDT" (or EST depending on DST)
+
+### Common Timestamp Fields in SuzieQ Tables
+Look for these common timestamp fields in SuzieQ output for potential conversion:
+* device table: "bootupTimestamp", "pollTimestamp", "lastBoot"
+* interface table: "timestamp", "lastChange"
+* bgp table: "estdTime", "timestamp"
+* ospf table: "timestamp", "lastChangeTime"
+* route table: "timestamp"
+
+### Workflow for Processing Timestamps
+1. First retrieve data using run_suzieq_show or run_suzieq_summarize
+2. Identify timestamp fields in milliseconds (usually large 13-digit numbers)
+3. Use humanize_timestamp_tool on each timestamp to convert to readable format
+4. Include both original timestamp and converted value in the response for clarity
+
+Example flow:
+```
+# First get device information
+{ "table": "device", "filters": { "hostname": "leaf01" } } (using run_suzieq_show)
+
+# Then convert any timestamp fields found in the response
+timestamp_ms: 1678886400000 (using humanize_timestamp_tool)
+```
+
 ## Multi-Parameter Complex Queries
 
 *   Show BGP sessions in VRF 'default' and namespace 'suzieq-demo':
@@ -159,9 +220,15 @@ system_content = [
 class State(TypedDict):
     messages: Annotated[list, add_messages]
     
-# Bind tools to the LLM (only if tools were loaded)
-if tools:
-    llm_with_tools = llm.bind_tools(tools)
+# Combine MCP tools with local tools
+all_tools = []
+if mcp_tools: # Check if mcp_tools were loaded
+    all_tools.extend(mcp_tools)
+all_tools.append(humanize_timestamp_tool)
+
+# Bind tools to the LLM
+if all_tools:
+    llm_with_tools = llm.bind_tools(all_tools)
 else:
     llm_with_tools = llm # Fallback to LLM without tools
 
@@ -205,14 +272,14 @@ workflow = StateGraph(State)
 # Define the nodes
 workflow.add_node("assistant", assistant)
 # Add tool node only if tools were successfully loaded
-if tools:
-    workflow.add_node("tools", ToolNode(tools))
+if all_tools:
+    workflow.add_node("tools", ToolNode(all_tools))
 
 # Set the entrypoint as assistant
 workflow.add_edge(START, "assistant")
 
 # Add conditional edges only if tools node exists
-if tools:
+if all_tools:
     workflow.add_conditional_edges(
         "assistant",
         should_continue,
