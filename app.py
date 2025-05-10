@@ -44,7 +44,7 @@ llm = ChatOpenAI(
           "order": ["Amazon Bedrock", "Azure"],
           "sort": "latency"
       },
-      "models": ["anthropic/claude-3.5-sonnet", "openai/gpt-4o"]
+      #"models": ["anthropic/claude-3.5-sonnet", "openai/gpt-4o"]
       }
 )
 
