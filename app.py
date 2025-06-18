@@ -39,12 +39,13 @@ llm = ChatOpenAI(
   frequency_penalty=0.0,
   presence_penalty=0.0,
   extra_body={
-      "usage": {"include": True},
+      #"usage": {"include": True},
+      "data_collection": "deny",
       "provider": {
           "order": ["Amazon Bedrock", "Azure"],
           "sort": "latency"
       },
-      #"models": ["anthropic/claude-3.5-sonnet", "openai/gpt-4o"]
+      "models": ["anthropic/claude-3.5-sonnet", "openai/gpt-4o"]
       }
 )
 
