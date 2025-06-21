@@ -516,14 +516,14 @@ requires-dist = [
     { name = "isort", marker = "extra == 'dev'", specifier = ">=5.12.0" },
     { name = "langchain", specifier = ">=0.3.23" },
     { name = "langchain-community", specifier = ">=0.3.21" },
-    { name = "langchain-core", specifier = ">=0.3.57" },
-    { name = "langchain-mcp-adapters", specifier = "==0.0.7" },
+    { name = "langchain-core", specifier = ">=0.3.66" },
+    { name = "langchain-mcp-adapters", specifier = "==0.1.7" },
     { name = "langchain-ollama", specifier = ">=0.3.1" },
     { name = "langchain-openai", specifier = ">=0.3.15" },
     { name = "langgraph", specifier = ">=0.3.27" },
     { name = "langgraph-checkpoint", specifier = ">=2.0.24" },
     { name = "langgraph-cli", specifier = ">=0.1.89" },
-    { name = "mcp", specifier = "==1.6.0" },
+    { name = "mcp", specifier = "==1.9.4" },
     { name = "ollama", specifier = ">=0.4.7" },
     { name = "pandas", specifier = "==2.2.3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
@@ -1043,7 +1043,7 @@ wheels = [
 
 [[package]]
 name = "langchain-core"
-version = "0.3.57"
+version = "0.3.66"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonpatch" },
@@ -1054,22 +1054,22 @@ dependencies = [
     { name = "tenacity" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1a/e1/d97e57d4dcdd61db843549e3bb967e1b49c9495f748bcb554bce84fdff46/langchain_core-0.3.57.tar.gz", hash = "sha256:6fa247071d722188ba9f97c0c22bb4e7d9d8bafc40f70670423a16a660db4b04", size = 556821 }
+sdist = { url = "https://files.pythonhosted.org/packages/f0/63/470aa84393bad5d51749417af58522a691174f8b2d05843f5633d473faa0/langchain_core-0.3.66.tar.gz", hash = "sha256:350c92e792ec1401f4b740d759b95f297710a50de29e1be9fbfff8676ef62117", size = 560102 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/69/21/e1a65e08f2e0332917c8bb9bdcf749b0c16d732b5aad39da1ad7dbdbd5a4/langchain_core-0.3.57-py3-none-any.whl", hash = "sha256:d461ff7d036050176cf01ef56b3377ab0c9dee365ad64ce1143f9359640b0720", size = 437384 },
+    { url = "https://files.pythonhosted.org/packages/c0/c3/8080431fd7567a340d3a42e36c0bb3970a8d00d5e27bf3ca2103b3b55996/langchain_core-0.3.66-py3-none-any.whl", hash = "sha256:65cd6c3659afa4f91de7aa681397a0c53ff9282425c281e53646dd7faf16099e", size = 438874 },
 ]
 
 [[package]]
 name = "langchain-mcp-adapters"
-version = "0.0.7"
+version = "0.1.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "langchain-core" },
     { name = "mcp" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/04/f5/dc7113d663995dcaf384312e3a6869ee254cd67b8d904a274d351a33d9b5/langchain_mcp_adapters-0.0.7.tar.gz", hash = "sha256:00cae7c832c1cf9e1faa8ed87973af2aa19d411aaf942860de680bec0f659fed", size = 11001 }
+sdist = { url = "https://files.pythonhosted.org/packages/01/5f/f6d2b724f7100bd53e4413a72dd7b77a61e5284549c9de63ba043e63d163/langchain_mcp_adapters-0.1.7.tar.gz", hash = "sha256:b5d0ab520211d8c12cfc4df83fd6335f8197a3557ee7ca4f14e3380846610535", size = 20023 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a6/32/b09799c5b6ce8c6842536116118664dd7ec5964e229b7cd449c8d598c68d/langchain_mcp_adapters-0.0.7-py3-none-any.whl", hash = "sha256:1e37ec79fc6afb58d1dea17733e08cc111ebc1992aed4b22c67de5e2bdcdb5c6", size = 8610 },
+    { url = "https://files.pythonhosted.org/packages/01/05/b6cf2f4651c9429b374c8837117ecc0619bfb8b6e106ce8390f2c932a293/langchain_mcp_adapters-0.1.7-py3-none-any.whl", hash = "sha256:6b3ded5f51b311e67cefa87b500f776c454caf2269d2eae4b2338ecec19a9258", size = 13318 },
 ]
 
 [[package]]
@@ -1180,7 +1180,7 @@ wheels = [
 
 [[package]]
 name = "langsmith"
-version = "0.3.27"
+version = "0.3.45"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
@@ -1191,9 +1191,9 @@ dependencies = [
     { name = "requests-toolbelt" },
     { name = "zstandard" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/94/12/bdae56a738323d4616ac4f57597b7e6430e51fc0865c50f0ca1cbf2c3259/langsmith-0.3.27.tar.gz", hash = "sha256:0bdeda73cf723cbcde1cab0f3459f7e5d5748db28a33bf9f6bdc0e2f4fe0ee1e", size = 342927 }
+sdist = { url = "https://files.pythonhosted.org/packages/be/86/b941012013260f95af2e90a3d9415af4a76a003a28412033fc4b09f35731/langsmith-0.3.45.tar.gz", hash = "sha256:1df3c6820c73ed210b2c7bc5cdb7bfa19ddc9126cd03fdf0da54e2e171e6094d", size = 348201 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ce/cd/dbd2f4adc5ad134a8c5e961cbadd9cd15e6226ad4fe85a133292b33862cd/langsmith-0.3.27-py3-none-any.whl", hash = "sha256:060956aaed5f391a85829daa0c220b5e07b2e7dd5d33be4b92f280672be984f7", size = 357526 },
+    { url = "https://files.pythonhosted.org/packages/6a/f4/c206c0888f8a506404cb4f16ad89593bdc2f70cf00de26a1a0a7a76ad7a3/langsmith-0.3.45-py3-none-any.whl", hash = "sha256:5b55f0518601fa65f3bb6b1a3100379a96aa7b3ed5e9380581615ba9c65ed8ed", size = 363002 },
 ]
 
 [[package]]
@@ -1290,7 +1290,7 @@ wheels = [
 
 [[package]]
 name = "mcp"
-version = "1.6.0"
+version = "1.9.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -1298,13 +1298,14 @@ dependencies = [
     { name = "httpx-sse" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
+    { name = "python-multipart" },
     { name = "sse-starlette" },
     { name = "starlette" },
-    { name = "uvicorn" },
+    { name = "uvicorn", marker = "sys_platform != 'emscripten'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/95/d2/f587cb965a56e992634bebc8611c5b579af912b74e04eb9164bd49527d21/mcp-1.6.0.tar.gz", hash = "sha256:d9324876de2c5637369f43161cd71eebfd803df5a95e46225cab8d280e366723", size = 200031 }
+sdist = { url = "https://files.pythonhosted.org/packages/06/f2/dc2450e566eeccf92d89a00c3e813234ad58e2ba1e31d11467a09ac4f3b9/mcp-1.9.4.tar.gz", hash = "sha256:cfb0bcd1a9535b42edaef89947b9e18a8feb49362e1cc059d6e7fc636f2cb09f", size = 333294 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/30/20a7f33b0b884a9d14dd3aa94ff1ac9da1479fe2ad66dd9e2736075d2506/mcp-1.6.0-py3-none-any.whl", hash = "sha256:7bd24c6ea042dbec44c754f100984d186620d8b841ec30f1b19eda9b93a634d0", size = 76077 },
+    { url = "https://files.pythonhosted.org/packages/97/fc/80e655c955137393c443842ffcc4feccab5b12fa7cb8de9ced90f90e6998/mcp-1.9.4-py3-none-any.whl", hash = "sha256:7fcf36b62936adb8e63f89346bccca1268eeca9bf6dfb562ee10b1dfbda9dac0", size = 130232 },
 ]
 
 [[package]]
