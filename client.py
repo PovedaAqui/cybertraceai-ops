@@ -1,10 +1,16 @@
 import asyncio
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from dotenv import load_dotenv
-from os import getenv
+from os import getenv, path
 
 # Load environment variables from .env file
 load_dotenv()
+
+mcp_server_path = getenv("MCP_SERVER_COMMAND_PATH")
+
+mcp_server_cwd = None
+if mcp_server_path and path.exists(mcp_server_path):
+    mcp_server_cwd = path.dirname(mcp_server_path)
 
 # Define the MCP server connection using MultiServerMCPClient
 # We give our server a name, e.g., "suzieq_server", for the client to manage.
@@ -16,9 +22,10 @@ client = MultiServerMCPClient(
                 "run",
                 "python",
                 # IMPORTANT: Ensure this path is correct for your system
-                getenv("MCP_SERVER_COMMAND_PATH"),
+                mcp_server_path,
             ],
             "transport": "stdio",
+            "cwd": mcp_server_cwd,
         }
     }
 )
